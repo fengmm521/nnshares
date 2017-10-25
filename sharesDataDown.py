@@ -110,7 +110,7 @@ def main():
     idkeys = id1s.keys()
     idkeys.sort()
     sdate = '20000101'
-    edate = '20170220'
+    edate = '20171025'
     #shutil.rmtree(dbDir)#删除目录下所有文件
     for t in idkeys:
         fname = dbDir + os.sep + t + '.csv'
