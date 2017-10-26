@@ -69,7 +69,7 @@ def getAllCodeID(fullfilename):
 
 def getAllIDs(isbackID = True):
     idstmp = []
-    excelfile1 = 'xlsx/2016code1.xls'
+    excelfile1 = 'xlsx/tusharedat.xlsx'
     id1s = getAllCodeID(excelfile1)
     idkeys = id1s.keys()
 
@@ -82,14 +82,14 @@ def getAllIDs(isbackID = True):
 
 #测试
 if __name__ == '__main__':
-    aids = getAllIDs()
-    outstr = ''
-    for d in aids:
-        outstr += "call updateTom('%s');\n"%(d)
-    f = open('updateother.sql','w')
-    f.write(outstr)
-    f.close()
-
+    # aids = getAllIDs()
+    # outstr = ''
+    # for d in aids:
+    #     outstr += "call updateTom('%s');\n"%(d)
+    # f = open('updateother.sql','w')
+    # f.write(outstr)
+    # f.close()
+    pass
 
 
 # aaa = getStringName('中国')
