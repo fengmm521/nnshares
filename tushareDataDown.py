@@ -14,6 +14,11 @@ import urllib2
 import socket  
 import shutil 
 
+import IDManger
+import pathtool
+
+import random
+
 import tushare as ts
 
 #将所有Excel文件转为xml文件
@@ -63,13 +68,71 @@ def getAllExtFile(path,fromatx = ".txt"):
 import tushare as ts
 
 
+tudataDir = 'perdat/tudata'
+sdate = '20000101'
+edate = '20171025'
+
+gdates = ['20000101','20021231','20051231','20081231','20111231','20141231','20171025']
+
+def makeTudataDir():
+    if not os.path.exists(tudataDir):
+        pathtool.makeDir('.', 'perdat/tudata')
+
+def createSNDates():
+    outs = []
+    for n in range(len(gdates)):
+        if n+1 < len(gdates):
+            s = gdates[n]
+            e = gdates[n+1]
+            s = s[0:4] + '-' + s[4:6] + '-' + s[6:]
+            e = e[0:4] + '-' + e[4:6] + '-' + e[6:]
+            outs.append([s,e])
+    return outs
+
+#all QFQ data
+def getAllIDsHFQData():
+    makeTudataDir()
+    sndates = createSNDates()
+    print sndates
+
+    ids = IDManger.getAllIDs()
+
+    isSNstart = False
+
+    for d in ids:
+        cvsfilename = tudataDir + os.sep + d + '.csv'
+        print cvsfilename
+        isSNstart = False
+        for sn in sndates:
+            print sn
+            dat = ts.get_h_data(d,start=sn[0], end=sn[1]) #qian复权
+
+            dat = dat.reset_index().sort_values('date',ascending=True)
+
+            if os.path.exists(cvsfilename):
+                dat = dat[1:]
+                dat.to_csv(cvsfilename,mode='a',header=None)
+            else:
+                dat.to_csv(cvsfilename)
+            time.sleep(random.randint(250, 350))
+        time.sleep(random.randint(1, 5))
+
 def main():
+
     #shutil.rmtree(dbDir)#删除目录下所有文件
     # dat = ts.get_hist_data('600848')
     # dat = ts.get_h_data('002337', autype='hfq') #后复权
     # dat = ts.get_industry_classified()            #获取行业分类
-    dat = ts.get_stock_basics()     #获取所有股票业绩
-    dat.to_excel('xlsx/tusharedat.xlsx')
-if __name__ == '__main__':  
-    main()
+    # dat = ts.get_stock_basics()     #获取所有股票业绩
+    # dat.to_excel('xlsx/tusharedat.xlsx')
+    getAllIDsHFQData()
+
+
+
+def test():
+    for s in range(10):
+        t = random.randint(1, 100)
+        print t
     
+if __name__ == '__main__':
+    main()
