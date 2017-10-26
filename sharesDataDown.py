@@ -80,7 +80,7 @@ def downDBFunc(codeid,startdate,enddate):
             # reraise the original error  
             raise
 #将EXCEL表转换为json文件
-def getAllCodeID(fullfilename):
+def getAllCodeID(fullfilename = 'xlsx/tusharedat.xlsx'):
     codedics = {}
     wb = xlrd.open_workbook(fullfilename)  
     for sheetName in wb.sheet_names():
