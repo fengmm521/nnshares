@@ -87,65 +87,6 @@ def runNN(inport,outport,dats): #500,529
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
 
-# batch_size = 8
-
-# w1 = tf.Variable(tf.random_normal([2,3],stddev=1,seed=1))
-# w2 = tf.Variable(tf.random_normal([3,2],stddev=1,seed=1))
-
-# b1 = tf.Variable(tf.zeros([3]))
-# b2 = tf.Variable(tf.zeros([2]))
-
-# x = tf.placeholder(tf.float32,shape=(None,2),name='x-input')
-# y_ = tf.placeholder(tf.float32,shape=(None,2),name='y-input')
-
-# a = tf.matmul(x, w1) + b1
-# y = tf.nn.softmax(tf.matmul(a,w2) + b2)
-
-# cross_entropy = -tf.reduce_mean(tf.reduce_sum( y_ * tf.log(y)))
-# train_step = tf.train.GradientDescentOptimizer(0.002).minimize(cross_entropy)
-
-# #random data
-# rdm = RandomState(1)
-# dataset_size = 1280
-# X = rdm.rand(dataset_size, 2)
-# Y = [[int(x1+x2 < 1),int(x1+x2>=1)] for (x1,x2) in X]
-
-# rdm2 = RandomState(1)
-# Xc = rdm2.rand(10, 2)
-
-# #tensorflow session
-# with tf.Session() as sess:
-#     init_op = tf.global_variables_initializer()
-#     sess.run(init_op)
-#     '''
-#     w1 = [[-0.81131822,1.48459876,0.06532937]]
-#             [-2.44270396,0.0992484,0.59122431]
-#     w2 = [[-0.81131822],[1.48459876],[0.06532937]]
-
-#     '''
-
-#     STEPS = 50000
-#     for i in range(STEPS):
-#         start = (i * batch_size) % dataset_size
-#         end = min(start + batch_size,dataset_size)
-#         sess.run(train_step,feed_dict={x:X[start:end],y_:Y[start:end]})
-
-#         if i % 1000 == 0:
-#             total_cross_entropy = sess.run(cross_entropy,feed_dict={x:X,y_:Y})
-#             print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
-
-#     print 'w1',sess.run(w1)
-#     print 'w2',sess.run(w2)
-#     for d in Xc:
-#         xt = d
-#         xtinput = tf.constant(xt,shape=[1,2],dtype=tf.float32)
-#         a1 = tf.matmul(xtinput, w1) + b1
-#         y1 = tf.nn.softmax(tf.matmul(a1,w2) + b2)
-#         yt = sess.run(y1)
-#         yout = 0
-#         if yt[0][1] > 0.5:
-#             yout = 1
-#         print xt,yout,yt
 
 def main():
     pass
