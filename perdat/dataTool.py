@@ -75,6 +75,7 @@ def deSoftMaxFromLable(lab):
 def softMaxLable(mindown,maxup):
     #true table
     tb ='-19,-17,-15,-13,-11,-9,-7,-5,-3,-2,-1,1,2,3,5,7,9,11,13,15,17,19'
+    tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
     truetables = tb.split(',')
     num = len(truetables) + 1  #23x23=529
     alllabnum = num*num
@@ -82,11 +83,15 @@ def softMaxLable(mindown,maxup):
     # print labs
     maxIndex = num - 1
     minIndex = 0
+
+    mindown100 = mindown*100
+    maxup100 = maxup*100
+
     for n in range(num - 1):
         tmpf = float(truetables[n])
-        if minIndex == 0 and mindown < tmpf:
+        if minIndex == 0 and mindown100 < tmpf:
             minIndex = n
-        if maxIndex == num - 1 and maxup < tmpf:
+        if maxIndex == num - 1 and maxup100 < tmpf:
             maxIndex = n 
     maxIndex += 1
     minIndex += 1
@@ -189,6 +194,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
             newperdata.append(tmpnew) 
 
     dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
+    dirpath = 'tmp' + str(pDay) + '_' + str(labDayCount)
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
     savepath = dirpath + os.sep + tid + '.txt'
@@ -213,6 +219,7 @@ def main():
         createNN100DayTmpData(t)
         # createNN30DayTmpData(t)
         # createNN10DayTmpData(t)
+        break
 
 def test():
     # a = range(100,103)
