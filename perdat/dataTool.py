@@ -107,7 +107,8 @@ def getPerdatLable(onedat,labDayCount = 7):
             minclose = d[2]
     lastclose = onedat[0][-1][3]
     # print lastclose
-
+    if lastclose <= 0:
+        return None
     maxup = (maxclose - lastclose)/lastclose
     mindown = (minclose - lastclose)/lastclose
 
