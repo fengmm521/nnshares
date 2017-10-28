@@ -71,18 +71,20 @@ def downDBFunc(codeid,startdate,enddate):
         print urlstr
         req = urllib2.Request(urlstr)  
         # restr.add_header('Range', 'bytes=0-20')
-        resque = urllib2.urlopen(req) 
+        resque = urllib2.urlopen(req,data=None,timeout=8) 
         datatmp = resque.read()
         f = open(dbDir + os.sep + codeid+'.csv','w')
         f.write(datatmp)
         print len(datatmp)
         f.close()
+        return True
     except urllib2.URLError, e:  
         if isinstance(e.reason, socket.timeout):  
             raise MyException("There was an error: %r" % e)  
         else:  
             # reraise the original error  
             raise
+    return False
 #将EXCEL表转换为json文件
 def getAllCodeID(fullfilename = 'xlsx/tusharedat.xlsx'):
     codedics = {}
@@ -128,13 +130,32 @@ def getTodatDataFrom126():
     sdate,edate = getTodatStartAndEndDateWithLastNum()
     #shutil.rmtree(dbDir)#删除目录下所有文件
 
+    recallback = []
+
     if not os.path.exists(dbDir):
         pathtool.makeDirs('.', dbDir)
     for t in idkeys:
         fname = dbDir + os.sep + t + '.csv'
         if not os.path.exists(fname):
-            downDBFunc(t,sdate,edate)
+            isOK = downDBFunc(t,sdate,edate)
+            if not isOK:
+                recallback.append(t)    
             time.sleep(10)
+
+    while recallback:
+        tmpcall = List(recallback)
+        f = open('recalllog.txt','a')
+        f.write(str(tmpcall) + '\n\n')
+        f.close()
+        recallback = []
+        for t in tmpcall:
+            fname = dbDir + os.sep + t + '.csv'
+            if not os.path.exists(fname):
+                isOK = downDBFunc(t,sdate,edate)
+                if not isOK:
+                    recallback.append(t)    
+                time.sleep(10)
+
 
 def main():
     getTodatDataFrom126()
