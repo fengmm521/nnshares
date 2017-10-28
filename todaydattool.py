@@ -80,10 +80,10 @@ def downDBFunc(codeid,startdate,enddate):
         return True
     except urllib2.URLError, e:  
         if isinstance(e.reason, socket.timeout):  
-            raise MyException("There was an error: %r" % e)  
+            print 'timeout erro'
         else:  
             # reraise the original error  
-            raise
+            print 'other erro'
     return False
 #将EXCEL表转换为json文件
 def getAllCodeID(fullfilename = 'xlsx/tusharedat.xlsx'):
