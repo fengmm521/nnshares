@@ -53,6 +53,12 @@ def getDateListWithStr(strdate):
     numtmp = conventStrDateToNumber(strdate)
     return getDateListWithNumber(numtmp)
 
+def getDateWithTime(ptime):
+    loctim = time.localtime(int(ptime))
+    numdattmp = int(loctim.tm_year)*10000 + int(loctim.tm_mon)*100 + int(loctim.tm_mday)
+    strtmp = conventNumberToStrDate(numdattmp)
+    return strtmp
+
 #测试
 if __name__ == '__main__':
     print '日期数据转换工具'
