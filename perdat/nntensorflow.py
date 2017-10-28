@@ -85,6 +85,15 @@ def runNN(inport,outport,dats): #500,529
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
 
+def trainDataWithListData(ldats):
+    dats = ldats
+    percount = len(dats[0][0])*len(dats[0][0][0])
+    lablecount = len(dats[0][1])
+
+    print percount,lablecount
+
+    runNN(percount, lablecount, dats)
+
 
 def main():
     pass

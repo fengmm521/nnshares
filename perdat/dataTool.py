@@ -226,6 +226,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
             f = open('testlog.txt','w')
             f.write(str(d))
             f.close()
+            
         tmpnew = getPerdatLable(d)
         
         if not isLog:
@@ -263,7 +264,7 @@ def main():
         createNN100DayTmpData(t)
         # createNN30DayTmpData(t)
         # createNN10DayTmpData(t)
-        break
+        
 
 def test():
     # a = range(100,103)
