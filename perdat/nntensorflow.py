@@ -46,8 +46,6 @@ def runNN(inport,outport,dats): #500,529
     train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
 
 
-    
-
     with tf.Session() as sess:
         init_op = tf.global_variables_initializer()
         sess.run(init_op)

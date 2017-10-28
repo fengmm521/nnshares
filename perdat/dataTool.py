@@ -72,30 +72,57 @@ def getAllQFQDataID():
 def deSoftMaxFromLable(lab):
     pass
 
+
+
+
+def getTureTableIndex(x,y,maxnum):
+    n = (y*(2*maxnum + 1 - y))/2 + x
+    return n
+
+
+def getXYFromTureTable(idx,maxnum):
+
+    dictab = {}
+    for m in range(maxnum + 1):
+        for n in range(maxnum + 1):
+            if m >= n:
+                tmp = getTureTableIndex(m, n, maxnum)
+                dictab[tmp] = {'x':m,'y':n}
+    return dictab[idx]
+
 def softMaxLable(mindown,maxup):
     #true table
     tb ='-19,-17,-15,-13,-11,-9,-7,-5,-3,-2,-1,1,2,3,5,7,9,11,13,15,17,19'
     tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
     truetables = tb.split(',')
-    num = len(truetables) + 1  #23x23=529
-    alllabnum = num*num
+    num = len(truetables)  #12x12=
+
+    alllabnum = getTureTableIndex(num, num, num) + 1
     labs = [0]*alllabnum
     # print labs
-    maxIndex = num - 1
+    maxIndex = num
     minIndex = 0
 
-    mindown100 = mindown*100
-    maxup100 = maxup*100
 
-    for n in range(num - 1):
+    miny = min(mindown, maxup)
+    maxx = max(mindown, maxup)
+
+    mindown100 = miny*100
+    maxup100 = maxx*100
+
+    for n in range(num):
         tmpf = float(truetables[n])
         if minIndex == 0 and mindown100 < tmpf:
             minIndex = n
-        if maxIndex == num - 1 and maxup100 < tmpf:
+        if maxIndex == num and maxup100 < tmpf:
             maxIndex = n 
-    maxIndex += 1
-    minIndex += 1
-    labs[minIndex*maxIndex] = 1
+    # maxIndex += 1
+    # minIndex += 1
+
+    indx = getTureTableIndex(maxIndex, minIndex, num)
+
+    labs[indx] = 1
+    print len(labs),alllabnum
     return labs
 
 def getPerdatLable(onedat,labDayCount = 7):
@@ -161,6 +188,8 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
     tmpd = f.readlines()[1:]
     f.close()
 
+   
+
     #code,time,open,high,low,close,volume,turn,trate
     perdata = []   #per data is 100 lines,data from after to now
     lcount = len(tmpd)
@@ -188,8 +217,23 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
     newperdata = []
     datlong = len(perdata)
     index = 0
+
+    isLog = True
+
     for d in perdata:
+
+        if not isLog:
+            f = open('testlog.txt','w')
+            f.write(str(d))
+            f.close()
         tmpnew = getPerdatLable(d)
+        
+        if not isLog:
+            f = open('testlog2.txt','w')
+            f.write(str(tmpnew))
+            f.close()
+            isLog = True
+
         if tmpnew:
             newperdata.append(tmpnew) 
 
@@ -225,14 +269,20 @@ def test():
     # a = range(100,103)
     # print a
     # SoftMaxLable(-5.1,6.3)
-    # os.mkdir('aaa')
-    aaa = [0]*10
-    bbb = []
-    bbb.append(aaa)
-    bbb.append([5,5,5,5,5,5,5])
-    saveListToFileWithJson('aaa.txt', bbb)
-    rlist = loadListFromFileWithJson('aaa.txt')
-    print rlist
+    # # os.mkdir('aaa')
+    # aaa = [0]*10
+    # bbb = []
+    # bbb.append(aaa)
+    # bbb.append([5,5,5,5,5,5,5])
+    # saveListToFileWithJson('aaa.txt', bbb)
+    # rlist = loadListFromFileWithJson('aaa.txt')
+    # print rlist
+
+    getTureTableIndex(0, 0, 12)
+    print getXYFromTureTable(50, 12)
+
+
+
 if __name__ == '__main__':  
     main()
     # test()
