@@ -5,6 +5,8 @@
 # @Link    : http://example.org
 # @Version : $Id$
 
+import os
+
 import json
 
 import tensorflow as tf
@@ -15,17 +17,17 @@ batch_size = 100
 
 hidlayerCount = 300
 
-def runNN(inport,outport,dats): #500,529
+def runNN(inport,outport,dats,tid): #500,529
 
     
     datasize = len(dats)
     
 
-    w1 = tf.Variable(tf.truncated_normal([inport,hidlayerCount],stddev = 0.1))
-    b1 = tf.Variable(tf.zeros([hidlayerCount]))
+    w1 = tf.Variable(tf.truncated_normal([inport,hidlayerCount],stddev = 0.1),name='w1')
+    b1 = tf.Variable(tf.zeros([hidlayerCount]),name='b1')
 
-    w2 = tf.Variable(tf.truncated_normal([hidlayerCount,outport]))
-    b2 = tf.Variable(tf.zeros([outport]))
+    w2 = tf.Variable(tf.truncated_normal([hidlayerCount,outport]),name='w2')
+    b2 = tf.Variable(tf.zeros([outport]),name='b2')
 
     x = tf.placeholder(tf.float32,[None,inport])
 
@@ -46,11 +48,12 @@ def runNN(inport,outport,dats): #500,529
     train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
 
 
+    saver = tf.train.Saver()
+
+
     with tf.Session() as sess:
         init_op = tf.global_variables_initializer()
         sess.run(init_op)
-
-        
 
         STEPS = 40000
         for i in range(STEPS):
@@ -84,15 +87,94 @@ def runNN(inport,outport,dats): #500,529
 
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
+        savepth = 'nndata/' + tid + '.ckpt'
+        savedpth = saver.save(sess, savepth)
+        saveinout = 'nndata/' + tid + '.inout'
 
-def trainDataWithListData(ldats):
+
+        outstr = str(inport) + ',' + str(outport)
+        f = open('saveinout','w')
+        f.write(outstr)
+        f.close()
+
+        print 'Model %s saved in file:'%(tid),savedpth
+
+
+def getTrainResult(dats,tid):
+
+    datasize = len(dats)
+    
+    inoutpth = 'nndata/' + tid + '.inout'
+    if not os.path.exists(inoutpth):
+        print 'not save in and out p count:%s'%(inoutpth)
+        return
+
+    f = open(inoutpth,'r')
+    tmpstr = f.read()
+    f.close()
+
+    inouts = tmpstr.split(',')
+    inport = int(inouts[0])
+    outport = int(inouts[1])
+
+    w1 = tf.Variable(tf.truncated_normal([inport,hidlayerCount],stddev = 0.1),name='w1')
+    b1 = tf.Variable(tf.zeros([hidlayerCount]),name='b1')
+
+    w2 = tf.Variable(tf.truncated_normal([hidlayerCount,outport]),name='w2')
+    b2 = tf.Variable(tf.zeros([outport]),name='b2')
+
+
+    batch_xtmps = dats
+
+    batch_xs = []
+
+    for d in batch_xs:
+        tmpxs = []
+            for xx in d[0]:
+                tmpxs +=xx
+            batch_xs.append(tmpxs)
+
+
+    x = tf.constant(batch_xs,shape=[1,inport],dtype=tf.float32)
+
+    hidden1 = tf.nn.relu(tf.matmul(x,w1) + b1)
+
+    hidden1_drop = tf.nn.dropout(hidden1, keep_prob)
+
+    y = tf.nn.softmax(tf.matmul(hidden1_drop,w2) + b2)
+
+
+    saver = tf.train.Saver()
+
+
+    with tf.Session() as sess:
+        savepth = 'nndata/' + tid + '.ckpt'
+        if not os.path.exists(savepth):
+            print 'file (%s) is not existsis,not save model for tid:%s'%(savepth,tid)
+            return
+
+        saver.restore(sess, savepth)
+
+        yout = sess.run(y)
+        saveoutpth = 'nnout/' + tid + '.txt'
+        f = open(saveoutpth,'w')
+        f.write(str(yout))
+        f.close()
+
+def trainDataWithListData(ldats,tid):
     dats = ldats
     percount = len(dats[0][0])*len(dats[0][0][0])
     lablecount = len(dats[0][1])
 
     print percount,lablecount
 
-    runNN(percount, lablecount, dats)
+    tmpid = tid
+    if len(tid) == 8:
+        tmpid = tid[2:]
+    elif len(tid) != 6:
+        print 'tid is not surport,tid must is 6 number.but is:%s'%(tid)
+        return
+    runNN(percount, lablecount, dats,tmpid)
 
 
 def main():
@@ -109,7 +191,7 @@ def main():
 
     print percount,lablecount
 
-    runNN(percount, lablecount, dats)
+    runNN(percount, lablecount, dats, '002355')
 
 if __name__ == '__main__':  
     main()
