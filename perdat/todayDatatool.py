@@ -19,6 +19,10 @@ import json
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
 
+
+dataDir = 'todaydata/tushare'
+
+
 def cur_file_dir():
     #获取脚本路径
     path = sys.path[0]
@@ -61,7 +65,7 @@ def getAllExtFile(path,fromatx = ".txt"):
 
 
 def getAllQFQDataID():
-    fs = getAllExtFile('qfqdata','.csv')
+    fs = getAllExtFile(dataDir,'.csv')
     print fs[0]
     ids = []
     for d in fs:
@@ -169,6 +173,34 @@ def getPerdatLable(onedat,labDayCount = 7):
     outdats.append(labdat)
     return outdats
 
+def getPerdataWithOutLable(dat100,pDay):
+    newperdat = []
+    perdat = dat100
+    if len(dat100) == 2:
+        perdat = dat100[0]
+    
+    if len(perdat) != pDay:
+        return
+
+    lastclose = perdat[-1][3]
+
+    for d in perdat:
+        tmp0 = (d[0] - lastclose)/(3*lastclose)
+        if tmp0 >= 1.0:
+            tmp0 = 1.0
+        tmp1 = (d[1] - lastclose)/(3*lastclose)
+        if tmp1 >= 1.0:
+            tmp1 = 1.0
+        tmp2 = (d[2] - lastclose)/(3*lastclose)
+        if tmp2 >= 1.0:
+            tmp2 = 1.0
+        tmp3 = (d[3] - lastclose)/(3*lastclose)
+        if tmp3 >= 1.0:
+            tmp3 = 1.0
+        tmpone = [tmp0,tmp1,tmp2,tmp3,d[4]]
+        newperdat.append(tmpone)
+    return newperdat
+
 
 def saveListToFileWithJson(tpath,dats):
     savetxt = json.dumps(dats)
@@ -183,68 +215,92 @@ def loadListFromFileWithJson(tpth):
     outlist = json.loads(jsontxt)
     return outlist
 
+
+def getdataTypeList(handdat):
+
+    tmphand = handdat.replace('\r','')
+    tmphand = tmphand.replace('\n','')
+    hands = tmphand.split(',')
+    
+    openidx = 0
+    openstr = 'openPrice'
+
+    highidx = 0
+    highstr = 'highestPrice'
+
+    lowidx = 0
+    lowstr = 'lowestPrice'
+
+    closeidx = 0
+    closestr = 'closePrice'
+
+    hslvidx = 0
+    hslvstr = 'turnoverRate'
+
+    for n in range(len(hands)):
+        h = hands[n]
+        if h.find(openstr) != -1:
+            openidx = n
+        if h.find(highstr) != -1:
+            highidx = n
+        if h.find(lowstr) != -1:
+            lowidx = n
+        if h.find(closestr) != -1:
+            closeidx = n
+        if h.find(hslvstr) != -1:
+            hslvidx = n
+    outs = [openidx,highidx,lowidx,closeidx,hslvidx]
+    return outs
+
 def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
-    f = open('qfqdata/' + tid + '.csv','r')
-    tmpd = f.readlines()[1:]
+    f = open(dataDir +'/' + tid + '.csv','r')
+    datall = f.readlines()
     f.close()
 
+    handidxs = getdataTypeList(datall[0])
+
+    tmpd = datall[1:]
+   
     if len(tmpd) < 110:
         return None
+
 
     #code,time,open,high,low,close,volume,turn,trate
     perdata = []   #per data is 100 lines,data from after to now
     lcount = len(tmpd)
     for n in range(len(tmpd)):
-        if n+pDay < lcount:
-            onedat = []
+        if n+pDay <= lcount:
             ppdat = []
             for ln in range(n,n+pDay):
                 tmpl = tmpd[ln]
                 tmpl = tmpl.replace('\r','')
                 tmpl = tmpl.replace('\n','')
                 ds = tmpl.split(',')
-                ppdat.append([float(ds[2]),float(ds[3]),float(ds[4]),float(ds[5]),float(ds[8])])
-            onedat.append(ppdat)
-            labdat = []
-            if n + pDay + labDayCount < lcount:
-                for ln2 in range(n+pDay,n+pDay+labDayCount):
-                    tmpl2 = tmpd[ln2]
-                    tmpl2 = tmpl2.replace('\r','')
-                    tmpl2 = tmpl2.replace('\n','')
-                    ds2 = tmpl2.split(',')
-                    labdat.append([float(ds2[2]),float(ds2[3]),float(ds2[4]),float(ds2[5]),float(ds2[8])])
-            onedat.append(labdat)
-            perdata.append(onedat)
-    newperdata = []
-    datlong = len(perdata)
-    index = 0
+                ppdat.append([float(ds[handidxs[0]]),float(ds[handidxs[1]]),float(ds[handidxs[2]]),float(ds[handidxs[3]]),float(ds[handidxs[4]])])
+            perdata.append(ppdat)
 
-    isLog = True
+
+    newsavedat = []
 
     for d in perdata:
+        newppdat = getPerdataWithOutLable(d,pDay)
+        newsavedat.append(newppdat)
 
-        if not isLog:
-            f = open('testlog.txt','w')
-            f.write(str(d))
-            f.close()
-            
-        tmpnew = getPerdatLable(d)
-        
-        if not isLog:
-            f = open('testlog2.txt','w')
-            f.write(str(tmpnew))
-            f.close()
-            isLog = True
 
-        if tmpnew:
-            newperdata.append(tmpnew) 
-
-    dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
-    dirpath = 'tmp' + str(pDay) + '_' + str(labDayCount)
+    dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/todaydata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
+    dirpath = 'todaydata/tmp' + str(pDay) + '_' + str(labDayCount)
     if not os.path.exists(dirpath):
         os.mkdir(dirpath)
     savepath = dirpath + os.sep + tid + '.txt'
-    saveListToFileWithJson(savepath, newperdata)
+    saveListToFileWithJson(savepath, newsavedat)
+
+
+    dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/todaydata/' + 'pertmp' + str(pDay) + '_' + str(labDayCount)
+    dirpath = 'todaydata/pertmp' + str(pDay) + '_' + str(labDayCount)
+    if not os.path.exists(dirpath):
+        os.mkdir(dirpath)
+    savepath = dirpath + os.sep + tid + '.txt'
+    saveListToFileWithJson(savepath, perdata)
 
 def createNN100DayTmpData(tid,labDay = 7):
     return createNNCOuntDayTmpData(tid,100,labDay)
@@ -265,6 +321,7 @@ def main():
         createNN100DayTmpData(t)
         # createNN30DayTmpData(t)
         # createNN10DayTmpData(t)
+        break
         
 
 def test():
