@@ -104,7 +104,7 @@ def getXYFromTureTable(idx,maxnum):
             if m >= n:
                 tmp = getTureTableIndex(m, n, maxnum)
                 dictab[tmp] = {'x':m,'y':n}
-    print dictab
+    # print dictab
     return dictab[idx]
 
 def softMaxLable(mindown,maxup):
@@ -139,7 +139,7 @@ def softMaxLable(mindown,maxup):
     indx = getTureTableIndex(maxIndex, minIndex, num)
 
     labs[indx] = 1
-    print len(labs),alllabnum
+    # print len(labs),alllabnum
     return labs
 
 def getPerdatLable(onedat,labDayCount = 7):
@@ -334,19 +334,22 @@ def conventXYToPecent(xydic):
     out = ''
     tabs = tb.split(',')
 
+    print xydic
+    print len(tabs)
+
     if x == 0:
-        out += 'min(-∞~%s%),'%(tabs[x])
-    elif x < len(tb) - 1:
-        out += 'min(%s%~%s%),'%(tabs[x-1],tabs[x])
+        out += 'min(-∞~%s%%),'%(tabs[x])
+    elif x < len(tabs) - 1:
+        out += 'min(%s%%~%s%%),'%(tabs[x-1],tabs[x])
     else:
-        out += 'min(%s%~+∞),'%(tabs[x])
+        out += 'min(%s%%~+∞),'%(tabs[x-1])
 
     if y == 0:
-        out += 'max(-∞~%s%)'%(tabs[x])
-    elif y < len(tb) - 1:
-        out += 'max(%s%~%s%)'%(tabs[x-1],tabs[x])
+        out += 'max(-∞~%s%%)'%(tabs[y])
+    elif y < len(tabs) - 1:
+        out += 'max(%s%%~%s%%)'%(tabs[y-1],tabs[y])
     else:
-        out += 'max(%s%~+∞)'%(tabs[x])
+        out += 'max(%s%%~+∞)'%(tabs[y-1])
 
     return out
 
@@ -369,7 +372,7 @@ def trainTodayData(tid):
     outsort = []
     for n in range(len(outdats)):
         outsort.append([n,outdats[n]])
-    print outsort
+    # print outsort
 
     outsort.sort(key=lambda x:x[1], reverse=True)
     print outsort[0:3]
@@ -380,12 +383,12 @@ def trainTodayData(tid):
         outpecent = conventXYToPecent(otmp)
         dpecent = '%.6f'%((d[1]/1.0)*100)
         outxy.append([tid,dpecent,otmp,outpecent])
-    print outxy
+    print outxy[0:3]
 
 
     outstr = ''
     for d in outxy:
-        outstr += d[0] + ',' + d[1] + ',' + str(d[2]['x']) +  + ',' +str(d[2]['y']) + ',' + str(d[3]) + '\n'
+        outstr += d[0] + ',' + d[1] + ',' + str(d[2]['x'])  + ',' +str(d[2]['y']) + ',' + str(d[3]) + '\n'
 
     todaynumdate = DateTool.getNowNumberDate()
 
@@ -401,10 +404,10 @@ def trainTodayData(tid):
 
 
 def test2():
-    trainTodayData('002355')
+    trainTodayData('000050')
 
 def test():
-    createNN100DayTmpData('002355')
+    createNN100DayTmpData('000050')
 
 def main():
     ids = getAllQFQDataID()
@@ -418,7 +421,14 @@ def main():
     for t in ids:
         trainTodayData(t)
 
+def testWithID(tid):
+    createNN100DayTmpData('000050')
+    time.sleep(1)
+    trainTodayData('000050')
+
+
 if __name__ == '__main__':  
     # main()
-    test2()
+    testWithID('000050')
+    
     
