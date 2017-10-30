@@ -58,6 +58,10 @@ def runNN(inport,outport,dats,tid): #500,529
         init_op = tf.global_variables_initializer()
         sess.run(init_op)
 
+
+        cross_entropy_log = ''
+
+
         STEPS = 40000
         for i in range(STEPS):
             start = (i * batch_size) % datasize
@@ -90,11 +94,13 @@ def runNN(inport,outport,dats,tid): #500,529
 
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
-                if total_cross_entropy < 0.00001 or (not total_cross_entropy):
-                    logout = '%s:%g\n'%(tid,total_cross_entropy)
-                    f = open('erro/nnlog.txt','a')
-                    f.write(logout)
-                    f.close()
+                cross_entropy_log = "After %d training step(s),cross entropy on all data is:%g"%(i,total_cross_entropy)
+        
+        cross_entropy_log = tid + '->' + cross_entropy_log + '\n'
+
+        f = open('erro/crosslog.txt','a')
+        f.write(cross_entropy_log)
+        f.close()
         savedirpth = 'nndata/' + tid
 
         if os.path.exists(savedirpth):
