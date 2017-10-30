@@ -6,8 +6,11 @@
 # @Version : $Id$
 
 import os
+import sys
+sys.path.append('../')
 
 import json
+import pathtool
 
 import tensorflow as tf
 
@@ -45,7 +48,7 @@ def runNN(inport,outport,dats,tid): #500,529
     cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y),reduction_indices=[1]))
     # cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y)))
 
-    train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
+    train_step = tf.train.GradientDescentOptimizer(0.05).minimize(cross_entropy)
 
 
     saver = tf.train.Saver()
@@ -87,13 +90,24 @@ def runNN(inport,outport,dats,tid): #500,529
 
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
-        savepth = 'nndata/' + tid + '.ckpt'
+                if total_cross_entropy < 0.00001 or (not total_cross_entropy):
+                    logout = '%s:%g\n'%(tid,total_cross_entropy)
+                    f = open('erro/nnlog.txt','a')
+                    f.write(logout)
+                    f.close()
+        savedirpth = 'nndata/' + tid
+
+        if os.path.exists(savedirpth):
+            pathtool.removeDirTree(savedirpth)
+        if not os.path.exists(savedirpth):
+            pathtool.makeDirs('.', savedirpth)
+        savepth = savedirpth + '/' + tid + '.ckpt'
         savedpth = saver.save(sess, savepth)
-        saveinout = 'nndata/' + tid + '.inout'
+        saveinout = savedirpth + '/' + tid + '.inout'
 
 
         outstr = str(inport) + ',' + str(outport)
-        f = open('saveinout','w')
+        f = open(saveinout,'w')
         f.write(outstr)
         f.close()
 
@@ -103,8 +117,10 @@ def runNN(inport,outport,dats,tid): #500,529
 def getTrainResult(dats,tid):
 
     datasize = len(dats)
+
+    savedirpth = 'nndata/' + tid
     
-    inoutpth = 'nndata/' + tid + '.inout'
+    inoutpth = savedirpth + '/' + tid + '.inout'
     if not os.path.exists(inoutpth):
         print 'not save in and out p count:%s'%(inoutpth)
         return
@@ -116,6 +132,7 @@ def getTrainResult(dats,tid):
     inouts = tmpstr.split(',')
     inport = int(inouts[0])
     outport = int(inouts[1])
+
 
     w1 = tf.Variable(tf.truncated_normal([inport,hidlayerCount],stddev = 0.1),name='w1')
     b1 = tf.Variable(tf.zeros([hidlayerCount]),name='b1')
@@ -130,36 +147,39 @@ def getTrainResult(dats,tid):
 
     for d in batch_xs:
         tmpxs = []
-            for xx in d[0]:
-                tmpxs +=xx
-            batch_xs.append(tmpxs)
+        for xx in d:
+            tmpxs +=xx
+        batch_xs.append(tmpxs)
 
 
     x = tf.constant(batch_xs,shape=[1,inport],dtype=tf.float32)
 
     hidden1 = tf.nn.relu(tf.matmul(x,w1) + b1)
 
-    hidden1_drop = tf.nn.dropout(hidden1, keep_prob)
+    # hidden1_drop = tf.nn.dropout(hidden1, keep_prob)
 
-    y = tf.nn.softmax(tf.matmul(hidden1_drop,w2) + b2)
+    y = tf.nn.softmax(tf.matmul(hidden1,w2) + b2)
 
 
     saver = tf.train.Saver()
 
 
     with tf.Session() as sess:
-        savepth = 'nndata/' + tid + '.ckpt'
-        if not os.path.exists(savepth):
+        savepth = savedirpth + '/' + tid + '.ckpt'
+        if not os.path.exists(savepth + '.meta'):
             print 'file (%s) is not existsis,not save model for tid:%s'%(savepth,tid)
             return
 
         saver.restore(sess, savepth)
 
         yout = sess.run(y)
-        saveoutpth = 'nnout/' + tid + '.txt'
+        saveoutpth = savedirpth + '/' + tid + '.txt'
+        if not os.path.exists('nnout'):
+            os.mkdir('nnout')
         f = open(saveoutpth,'w')
         f.write(str(yout))
         f.close()
+        return yout[0]
 
 def trainDataWithListData(ldats,tid):
     dats = ldats

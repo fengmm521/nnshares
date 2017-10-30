@@ -5,15 +5,25 @@
 # @Link    : http://example.org
 # @Version : $Id$
 
+import sys
+
+sys.path.append('../')
+
 import os
 import codecs
-import sys
+
 import time
 import shutil 
 
 
 import numpy
 import json
+
+import nntensorflow
+
+import DateTool
+import pathtool
+
 
 #将所有Excel文件转为xml文件
 reload(sys)
@@ -22,6 +32,8 @@ sys.setdefaultencoding( "utf-8" )
 
 dataDir = 'todaydata/tushare'
 
+# tb ='-19,-17,-15,-13,-11,-9,-7,-5,-3,-2,-1,1,2,3,5,7,9,11,13,15,17,19'
+tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
 
 def cur_file_dir():
     #获取脚本路径
@@ -92,12 +104,13 @@ def getXYFromTureTable(idx,maxnum):
             if m >= n:
                 tmp = getTureTableIndex(m, n, maxnum)
                 dictab[tmp] = {'x':m,'y':n}
+    print dictab
     return dictab[idx]
 
 def softMaxLable(mindown,maxup):
     #true table
-    tb ='-19,-17,-15,-13,-11,-9,-7,-5,-3,-2,-1,1,2,3,5,7,9,11,13,15,17,19'
-    tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
+    # tb ='-19,-17,-15,-13,-11,-9,-7,-5,-3,-2,-1,1,2,3,5,7,9,11,13,15,17,19'
+    # tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
     truetables = tb.split(',')
     num = len(truetables)  #12x12=
 
@@ -302,6 +315,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
     savepath = dirpath + os.sep + tid + '.txt'
     saveListToFileWithJson(savepath, perdata)
 
+
 def createNN100DayTmpData(tid,labDay = 7):
     return createNNCOuntDayTmpData(tid,100,labDay)
 
@@ -311,6 +325,86 @@ def createNN30DayTmpData(tid,labDay = 3):
 
 def createNN10DayTmpData(tid,labDay = 3):
     return createNNCOuntDayTmpData(tid,10,3)
+    
+def conventXYToPecent(xydic):
+    # tb = '-18,-14,-8,-5,-2,-1,1,2,5,8,14,18'
+    x = xydic['x']
+    y = xydic['y']
+    
+    out = ''
+    tabs = tb.split(',')
+
+    if x == 0:
+        out += 'min(-∞~%s%),'%(tabs[x])
+    elif x < len(tb) - 1:
+        out += 'min(%s%~%s%),'%(tabs[x-1],tabs[x])
+    else:
+        out += 'min(%s%~+∞),'%(tabs[x])
+
+    if y == 0:
+        out += 'max(-∞~%s%)'%(tabs[x])
+    elif y < len(tb) - 1:
+        out += 'max(%s%~%s%)'%(tabs[x-1],tabs[x])
+    else:
+        out += 'max(%s%~+∞)'%(tabs[x])
+
+    return out
+
+def trainTodayData(tid):
+
+    opentxtdat = 'todaydata/tmp100_7/' + tid + '.txt'
+
+    if not os.path.exists(opentxtdat):
+        print 'not heave file:%s'%(opentxtdat)
+        return
+
+    f = open(opentxtdat,'r')    
+    datstr = f.read()
+    f.close()
+    dats = json.loads(datstr)
+    print len(dats)
+    # print len(dats[0])
+    outdats = nntensorflow.getTrainResult(dats[-1], tid)
+
+    outsort = []
+    for n in range(len(outdats)):
+        outsort.append([n,outdats[n]])
+    print outsort
+
+    outsort.sort(key=lambda x:x[1], reverse=True)
+    print outsort[0:3]
+
+    outxy = []
+    for d in outsort:
+        otmp = getXYFromTureTable(d[0], 12)
+        outpecent = conventXYToPecent(otmp)
+        dpecent = '%.6f'%((d[1]/1.0)*100)
+        outxy.append([tid,dpecent,otmp,outpecent])
+    print outxy
+
+
+    outstr = ''
+    for d in outxy:
+        outstr += d[0] + ',' + d[1] + ',' + str(d[2]['x']) +  + ',' +str(d[2]['y']) + ',' + str(d[3]) + '\n'
+
+    todaynumdate = DateTool.getNowNumberDate()
+
+    outpth = 'nnout' 
+    if not os.path.exists(outpth):
+        pathtool.makeDirs('.', outpth)
+
+    savepth = outpth + '/' + str(todaynumdate) + '.csv'
+    
+    f = open(savepth,'a')
+    f.write(outstr)
+    f.close()
+
+
+def test2():
+    trainTodayData('002355')
+
+def test():
+    createNN100DayTmpData('002355')
 
 def main():
     ids = getAllQFQDataID()
@@ -321,28 +415,10 @@ def main():
         createNN100DayTmpData(t)
         # createNN30DayTmpData(t)
         # createNN10DayTmpData(t)
-        break
-        
-
-def test():
-    # a = range(100,103)
-    # print a
-    # SoftMaxLable(-5.1,6.3)
-    # # os.mkdir('aaa')
-    # aaa = [0]*10
-    # bbb = []
-    # bbb.append(aaa)
-    # bbb.append([5,5,5,5,5,5,5])
-    # saveListToFileWithJson('aaa.txt', bbb)
-    # rlist = loadListFromFileWithJson('aaa.txt')
-    # print rlist
-
-    getTureTableIndex(0, 0, 12)
-    print getXYFromTureTable(50, 12)
-
-
+    for t in ids:
+        trainTodayData(t)
 
 if __name__ == '__main__':  
-    main()
-    # test()
+    # main()
+    test2()
     

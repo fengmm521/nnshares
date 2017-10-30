@@ -3,6 +3,7 @@
 #png8图片批量转png24
 import os
 import sys
+import shutil
 #获取脚本路径
 def cur_file_dir():
     pathx = sys.argv[0]
@@ -187,9 +188,12 @@ def renameDir(sdir,replacestr,tostr,exittype):
     for p in allfilepath:
         replaceFileName(p[0], p[1], replacestr, tostr)
 
+def removeDirTree(tdirpth):
+    shutil.rmtree(tdirpth)
+
 
 def main():
-    makeDirs('.', 'a/b/c/d')
+    print '%g'%([])
 
 #测试
 if __name__ == '__main__':

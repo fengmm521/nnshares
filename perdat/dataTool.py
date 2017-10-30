@@ -12,8 +12,12 @@ import time
 import shutil 
 
 
+sys.path.append('../')
+
 import numpy
 import json
+
+import nntensorflow
 
 #将所有Excel文件转为xml文件
 reload(sys)
@@ -183,7 +187,13 @@ def loadListFromFileWithJson(tpth):
     outlist = json.loads(jsontxt)
     return outlist
 
-def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
+
+def createTrainMadelWithDatalist(dats,tid):
+    nntensorflow.trainDataWithListData(dats, tid)
+    print '--------------%s----------------'%(tid)
+
+
+def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7,isRunNN = True):
     f = open('qfqdata/' + tid + '.csv','r')
     tmpd = f.readlines()[1:]
     f.close()
@@ -239,12 +249,27 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
         if tmpnew:
             newperdata.append(tmpnew) 
 
-    dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
-    dirpath = 'tmp' + str(pDay) + '_' + str(labDayCount)
-    if not os.path.exists(dirpath):
-        os.mkdir(dirpath)
-    savepath = dirpath + os.sep + tid + '.txt'
-    saveListToFileWithJson(savepath, newperdata)
+    if len(perdata) < 900:
+        print 'data long is not enough 900.'
+        if not os.path.exists('erro'):
+            os.mkdir('erro')
+        outstr = str(tid) + ':%d'%(len(perdata))
+        f = open('erro/noEnough.txt','a')
+        f.write(outstr)
+        f.close()
+        return
+
+    if isRunNN:
+        createTrainMadelWithDatalist(newperdata, tid)
+        return
+    else:
+        dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
+        # dirpath = 'tmp' + str(pDay) + '_' + str(labDayCount)
+        if not os.path.exists(dirpath):
+            os.mkdir(dirpath)
+        savepath = dirpath + os.sep + tid + '.txt'
+        saveListToFileWithJson(savepath, newperdata)
+
 
 def createNN100DayTmpData(tid,labDay = 7):
     return createNNCOuntDayTmpData(tid,100,labDay)
