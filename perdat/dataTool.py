@@ -126,7 +126,7 @@ def softMaxLable(mindown,maxup):
     indx = getTureTableIndex(maxIndex, minIndex, num)
 
     labs[indx] = 1
-    print len(labs),alllabnum
+    # print len(labs),alllabnum
     return labs
 
 def getPerdatLable(onedat,labDayCount = 7):
@@ -199,6 +199,13 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7,isRunNN = True):
     f.close()
 
     if len(tmpd) < 110:
+        print 'data long is not enough 110.tid is:%s'%(tid)
+        if not os.path.exists('erro'):
+            os.mkdir('erro')
+        outstr = str(tid) + ',tmpd:%d\n'%(len(tmpd))
+        f = open('erro/noEnough.txt','a')
+        f.write(outstr)
+        f.close()
         return None
 
     #code,time,open,high,low,close,volume,turn,trate
@@ -250,10 +257,10 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7,isRunNN = True):
             newperdata.append(tmpnew) 
 
     if len(perdata) < 900:
-        print 'data long is not enough 900.'
+        print 'data long is not enough 900.tid is:%s'%(tid)
         if not os.path.exists('erro'):
             os.mkdir('erro')
-        outstr = str(tid) + ':%d'%(len(perdata))
+        outstr = str(tid) + ',perdata:%d\n'%(len(perdata))
         f = open('erro/noEnough.txt','a')
         f.write(outstr)
         f.close()
@@ -287,6 +294,11 @@ def main():
     for t in ids:
         index += 1
         print index,t
+        tmpid = t
+        if len(t) == 8:
+            tmpid = t[2:]
+        if os.path.exists('nndata/' + tmpid):
+            continue
         createNN100DayTmpData(t)
         # createNN30DayTmpData(t)
         # createNN10DayTmpData(t)
