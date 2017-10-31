@@ -12,6 +12,8 @@ sys.path.append('../')
 import json
 import pathtool
 
+import math
+
 import tensorflow as tf
 
 from numpy.random import RandomState
@@ -95,7 +97,8 @@ def runNN(inport,outport,dats,tid): #500,529
                 total_cross_entropy = sess.run(cross_entropy,feed_dict={x:tbatch_xs,y_:tbatch_ys,keep_prob:1.0})
                 print "After %d training step(s),cross entropy on all data is %g"%(i,total_cross_entropy)
                 cross_entropy_log = "After %d training step(s),cross entropy on all data is:%g"%(i,total_cross_entropy)
-        
+                if math.isnan(total_cross_entropy):
+                    break
         cross_entropy_log = tid + '->' + cross_entropy_log + '\n'
 
         f = open('erro/crosslog.txt','a')

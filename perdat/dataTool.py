@@ -143,7 +143,7 @@ def getPerdatLable(onedat,labDayCount = 7):
             minclose = d[2]
     lastclose = onedat[0][-1][3]
     # print lastclose
-    if lastclose <= 0:
+    if lastclose <= 0.01:
         return None
     maxup = (maxclose - lastclose)/lastclose
     mindown = (minclose - lastclose)/lastclose
@@ -289,6 +289,12 @@ def createNN10DayTmpData(tid,labDay = 3):
     return createNNCOuntDayTmpData(tid,10,3)
 
 def main():
+    
+    noEnoughpth = 'erro/noEnough.txt'
+
+    if os.path.exists(noEnoughpth):
+        os.remove(noEnoughpth)
+
     ids = getAllQFQDataID()
     index = 0
     for t in ids:
@@ -317,9 +323,9 @@ def test():
     # rlist = loadListFromFileWithJson('aaa.txt')
     # print rlist
 
-    getTureTableIndex(0, 0, 12)
-    print getXYFromTureTable(50, 12)
-
+    # getTureTableIndex(0, 0, 12)
+    # print getXYFromTureTable(50, 12)
+    createNN100DayTmpData('SH600598')
 
 
 if __name__ == '__main__':  
