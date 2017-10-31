@@ -20,7 +20,7 @@ from numpy.random import RandomState
 
 batch_size = 100
 
-hidlayerCount = 300
+hidlayerCount = 350
 
 def runNN(inport,outport,dats,tid): #500,529
 

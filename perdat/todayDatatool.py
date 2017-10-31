@@ -103,7 +103,7 @@ def getXYFromTureTable(idx,maxnum):
         for n in range(maxnum + 1):
             if m >= n:
                 tmp = getTureTableIndex(m, n, maxnum)
-                dictab[tmp] = {'x':m,'y':n}
+                dictab[tmp] = {'y':m,'x':n}
     # print dictab
     return dictab[idx]
 
@@ -334,8 +334,8 @@ def conventXYToPecent(xydic):
     out = ''
     tabs = tb.split(',')
 
-    print xydic
-    print len(tabs)
+    # print xydic
+    # print len(tabs)
 
     if x == 0:
         out += 'min(-∞~%s%%),'%(tabs[x])
@@ -392,13 +392,13 @@ def trainTodayData(tid):
 
     todaynumdate = DateTool.getNowNumberDate()
 
-    outpth = 'nnout' 
+    outpth = 'nnout/' + str(todaynumdate)
     if not os.path.exists(outpth):
         pathtool.makeDirs('.', outpth)
 
-    savepth = outpth + '/' + str(todaynumdate) + '.csv'
+    savepth = outpth + '/' + tid + '.csv'
     
-    f = open(savepth,'a')
+    f = open(savepth,'w')
     f.write(outstr)
     f.close()
 
@@ -422,13 +422,13 @@ def main():
         trainTodayData(t)
 
 def testWithID(tid):
-    createNN100DayTmpData('000050')
+    createNN100DayTmpData(tid)
     time.sleep(1)
-    trainTodayData('000050')
+    trainTodayData(tid)
 
 
 if __name__ == '__main__':  
     # main()
-    testWithID('000050')
+    testWithID('600596')
     
     

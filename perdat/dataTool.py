@@ -322,10 +322,11 @@ def test():
     # saveListToFileWithJson('aaa.txt', bbb)
     # rlist = loadListFromFileWithJson('aaa.txt')
     # print rlist
-
+    tid = 'SH600596'
+    print tid
     # getTureTableIndex(0, 0, 12)
     # print getXYFromTureTable(50, 12)
-    createNN100DayTmpData('SH600598')
+    createNN100DayTmpData(tid)
 
 
 if __name__ == '__main__':  
