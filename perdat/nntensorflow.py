@@ -212,11 +212,12 @@ def getTrainResultNewOP(dats,tid):
 
     batch_xs = []
 
-    for d in batch_xs:
-        tmpxs = []
-        for xx in d:
-            tmpxs +=xx
-        batch_xs.append(tmpxs)
+    for d in batch_xtmps:
+        # tmpxs = []
+        # for xx in d:
+        #     tmpxs +=xx
+        # batch_xs.append(tmpxs)
+        batch_xs += d
 
 
     x = tf.constant(batch_xs,shape=[1,inport],dtype=tf.float32)
