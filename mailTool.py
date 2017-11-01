@@ -12,11 +12,15 @@ import os
 from email.mime.text import MIMEText  
 from email.mime.multipart import MIMEMultipart  
 
+import time
+import hashlib
+
+
 import DateTool
   
 class MyEmail:  
     def __init__(self):  
-        self.confilepth = 'mail.conf'
+        self.confilepth = 'mail.txt'
         self.user = ""  
         self.passwd = ""  
         self.to_list = []  
@@ -25,7 +29,7 @@ class MyEmail:
         self.doc = None  
         self.initAccount()
     def initAccount(self):
-        f = open('mail.conf')
+        f = open(self.confilepth)
         tmps = f.readlines()
         f.close()
         self.user = tmps[0]
@@ -46,8 +50,7 @@ class MyEmail:
             server.close()  
             print "send email successful"  
         except Exception,e:  
-            ortstr = conventStrTOUtf8(str(e))
-            print ortstr
+            print str(e)
             print "send email failed"  
     def get_attach(self,ttext):  
         ''''' 
@@ -82,9 +85,45 @@ class MyEmail:
             # f.close()  
         return attach.as_string()  
 
+
+def watchDogSendMsg(tmail,isTest = False):
+    
+    if isTest:
+        datetmp = DateTool.getNowStrYMDhms()
+        tag = "%stensorflow watch start"%(datetmp)  
+        tmail.send(tag,'%s\ntensorflow watch is start,time sleep with 10 min.'%(datetmp))  
+    else:
+        datetmp = DateTool.getNowStrYMDhms()
+        tag = "%sData erro"%(datetmp)  
+        tmail.send(tag,'tensorflow data erro:\n%s'%(datetmp))  
+
+def watchDogFileChange(fpth):
+
+    my = MyEmail() 
+    lasthash = ''
+    while True:
+        f = open(fpth,'r')
+        a = f.read()
+        f.close()
+        tmphash = hashlib.md5(a).hexdigest()
+        if lasthash == '':
+            lasthash = tmphash
+            watchDogSendMsg(my,True)
+            print 'watchDog start:'%(DateTool.getNowStrYMDhms())
+        elif lasthash == tmphash:
+            watchDogSendMsg(my)
+            print 'watch alarm at:%s'%(DateTool.getNowStrYMDhms())
+        else:
+            lasthash = tmphash
+            print 'watchDog his feed:%s'%(DateTool.getNowStrYMDhms())
+        time.sleep(10*60)
+
 if __name__=="__main__":  
-    my = MyEmail()  
-    datetmp = DateTool.getNowStrDate()
-    tag = "%s股票推荐"%(datetmp)  
-    my.send(tag,'发送邮件测试')  
+
+    watchDogFileChange('perdat/erro/crosslog.txt')
+    # my = MyEmail()  
+    # datetmp = DateTool.getNowStrDate()
+    # tag = "%sData erro"%(datetmp)  
+
+    # my.send(tag,'tensorflow data erro')  
 

@@ -41,6 +41,12 @@ def getNowStrDate():
     numdattmp = getNowNumberDate()
     strtmp = conventNumberToStrDate(numdattmp)
     return strtmp
+
+def getNowStrYMDhms():
+    loctim = time.localtime()
+    #time.struct_time(tm_year=2015, tm_mon=8, tm_mday=2, tm_hour=12, tm_min=16, tm_sec=47, tm_wday=6, tm_yday=214, tm_isdst=0)
+    strdate = str(loctim.tm_year) + '-' +str(loctim.tm_mon) + '-' + str(loctim.tm_mday) + ' ' + str(loctim.tm_hour) + ':' + str(loctim.tm_min) + ':' + str(loctim.tm_sec)
+    return strdate
 #获取列表数组
 def getDateListWithNumber(number):
     dtmp = number%100
