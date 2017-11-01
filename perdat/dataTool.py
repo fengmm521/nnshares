@@ -322,7 +322,7 @@ def test():
     # saveListToFileWithJson('aaa.txt', bbb)
     # rlist = loadListFromFileWithJson('aaa.txt')
     # print rlist
-    tid = 'SH600596'
+    tid = 'SZ002355'
     print tid
     # getTureTableIndex(0, 0, 12)
     # print getXYFromTureTable(50, 12)
@@ -330,6 +330,6 @@ def test():
 
 
 if __name__ == '__main__':  
-    main()
-    # test()
+    # main()
+    test()
     

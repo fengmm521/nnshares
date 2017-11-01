@@ -14,9 +14,11 @@ import pathtool
 
 import math
 
+import numpy
+
 import tensorflow as tf
 
-from numpy.random import RandomState
+# from numpy.random import RandomState
 
 batch_size = 100
 
@@ -40,6 +42,7 @@ def runNN(inport,outport,dats,tid): #500,529
 
     hidden1 = tf.nn.relu(tf.matmul(x,w1) + b1)
 
+
     hidden1_drop = tf.nn.dropout(hidden1, keep_prob)
 
     y = tf.nn.softmax(tf.matmul(hidden1_drop,w2) + b2)
@@ -51,9 +54,10 @@ def runNN(inport,outport,dats,tid): #500,529
     # cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y)))
 
     train_step = tf.train.GradientDescentOptimizer(0.05).minimize(cross_entropy)
+    # train_step = tf.train.AdamOptimizer(0.0001,epsilon=1e-08).minimize(cross_entropy)
 
 
-    saver = tf.train.Saver()
+    # saver = tf.train.Saver({"w1":w1,"b1":b1,"w2":w2,"b2":b2})
 
 
     with tf.Session() as sess:
@@ -110,8 +114,28 @@ def runNN(inport,outport,dats,tid): #500,529
             pathtool.removeDirTree(savedirpth)
         if not os.path.exists(savedirpth):
             pathtool.makeDirs('.', savedirpth)
-        savepth = savedirpth + '/' + tid + '.ckpt'
-        savedpth = saver.save(sess, savepth)
+        savepth = savedirpth + '/' + tid + '.tens'
+
+
+        outw1 = sess.run(w1)
+        outb1 = sess.run(b1)
+        outw2 = sess.run(w2)
+        outb2 = sess.run(b2)
+
+        outw1list = outw1.tolist()
+        outb1list = outb1.tolist()
+        outw2list = outw2.tolist()
+        outb2list = outb2.tolist()
+
+        outlist = [outw1list,outb1list,outw2list,outb2list]
+
+        outstr = json.dumps(outlist)
+
+        f = open(savepth,'w')
+        f.write(outstr)
+        f.close()
+
+        # savedpth = saver.save(sess, savepth)
         saveinout = savedirpth + '/' + tid + '.inout'
 
 
@@ -120,7 +144,100 @@ def runNN(inport,outport,dats,tid): #500,529
         f.write(outstr)
         f.close()
 
-        print 'Model %s saved in file:'%(tid),savedpth
+        print 'Model tensorflow %s saved in file:'%(tid),savepth
+
+        sess.close()
+
+
+def getTrainResultNewOP(dats,tid):
+
+    savedirpth = 'nndata/' + tid
+    
+    inoutpth = savedirpth + '/' + tid + '.tens'
+    if not os.path.exists(inoutpth):
+        print 'not save in and out p count:%s'%(inoutpth)
+        return
+
+    f = open(inoutpth,'r')
+    tmpstr = f.read()
+    f.close()
+
+    outlist = json.loads(tmpstr)
+    outw1list = outlist[0]
+    outb1list = outlist[1]
+    outw2list = outlist[2]
+    outb2list = outlist[3]
+
+
+    f = open('w1.txt','w')
+    f.write(str(outw1list))
+    f.close()
+
+    f = open('w2.txt','w')
+    f.write(str(outw2list))
+    f.close()
+
+    f = open('b1.txt','w')
+    f.write(str(outb1list))
+    f.close()
+
+    f = open('b2.txt','w')
+    f.write(str(outb2list))
+    f.close()
+
+    w1 = tf.constant(numpy.array(outw1list),dtype=tf.float32)
+    b1 = tf.constant(numpy.array(outb1list),dtype=tf.float32)
+    w2 = tf.constant(numpy.array(outw2list),dtype=tf.float32)
+    b2 = tf.constant(numpy.array(outb2list),dtype=tf.float32)
+
+
+
+
+    inoutpth = savedirpth + '/' + tid + '.inout'
+    if not os.path.exists(inoutpth):
+        print 'not save in and out p count:%s'%(inoutpth)
+        return
+
+    f = open(inoutpth,'r')
+    tmpstr = f.read()
+    f.close()
+
+    inouts = tmpstr.split(',')
+    inport = int(inouts[0])
+    outport = int(inouts[1])
+
+
+
+    batch_xtmps = dats
+
+    batch_xs = []
+
+    for d in batch_xs:
+        tmpxs = []
+        for xx in d:
+            tmpxs +=xx
+        batch_xs.append(tmpxs)
+
+
+    x = tf.constant(batch_xs,shape=[1,inport],dtype=tf.float32)
+
+    hidden1 = tf.nn.relu(tf.matmul(x,w1) + b1)
+
+    # hidden1_drop = tf.nn.dropout(hidden1, keep_prob)
+
+    y = tf.nn.softmax(tf.matmul(hidden1,w2) + b2)
+
+
+    with tf.Session() as sess:
+
+        yout = sess.run(y)
+        saveoutpth = savedirpth + '/' + tid + '.txt'
+        if not os.path.exists('nnout'):
+            os.mkdir('nnout')
+        f = open(saveoutpth,'w')
+        f.write(str(yout))
+        f.close()
+        return yout[0]
 
 
 def getTrainResult(dats,tid):
@@ -170,7 +287,8 @@ def getTrainResult(dats,tid):
     y = tf.nn.softmax(tf.matmul(hidden1,w2) + b2)
 
 
-    saver = tf.train.Saver()
+    # saver = tf.train.Saver()
+    tf.train.Saver({"w1":w1,"b1":b1,"w2":w2,"b2":b2})
 
 
     with tf.Session() as sess:
@@ -188,6 +306,7 @@ def getTrainResult(dats,tid):
         f = open(saveoutpth,'w')
         f.write(str(yout))
         f.close()
+        sess.close()
         return yout[0]
 
 def trainDataWithListData(ldats,tid):

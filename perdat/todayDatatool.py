@@ -367,7 +367,9 @@ def trainTodayData(tid):
     dats = json.loads(datstr)
     print len(dats)
     # print len(dats[0])
-    outdats = nntensorflow.getTrainResult(dats[-1], tid)
+    # outdats = nntensorflow.getTrainResult(dats[-1], tid)
+    outdats = nntensorflow.getTrainResultNewOP(dats[-1], tid)
+    
 
     outsort = []
     for n in range(len(outdats)):
@@ -429,6 +431,6 @@ def testWithID(tid):
 
 if __name__ == '__main__':  
     # main()
-    testWithID('600596')
+    testWithID('002355')
     
     
