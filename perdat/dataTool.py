@@ -278,7 +278,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7,isRunNN = True):
         saveListToFileWithJson(savepath, newperdata)
 
 
-def createNN100DayTmpData(tid,labDay = 7):
+def createNN100DayTmpData(tid,labDay = 5):
     return createNNCOuntDayTmpData(tid,100,labDay)
 
 
@@ -322,8 +322,8 @@ def test():
     # saveListToFileWithJson('aaa.txt', bbb)
     # rlist = loadListFromFileWithJson('aaa.txt')
     # print rlist
-    tid = 'SH'+'600596'
-    # tid = 'SZ' + ''
+    # tid = 'SH'+'601766'
+    tid = 'SZ' + '002401'
     print tid
     # getTureTableIndex(0, 0, 12)
     # print getXYFromTureTable(50, 12)
@@ -331,6 +331,6 @@ def test():
 
 
 if __name__ == '__main__':  
-    # main()
-    test()
+    main()
+    # test()
     

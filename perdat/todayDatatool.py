@@ -316,7 +316,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
     saveListToFileWithJson(savepath, perdata)
 
 
-def createNN100DayTmpData(tid,labDay = 7):
+def createNN100DayTmpData(tid,labDay = 5):
     return createNNCOuntDayTmpData(tid,100,labDay)
 
 
@@ -355,7 +355,7 @@ def conventXYToPecent(xydic):
 
 def trainTodayData(tid):
 
-    opentxtdat = 'todaydata/tmp100_7/' + tid + '.txt'
+    opentxtdat = 'todaydata/tmp100_5/' + tid + '.txt'
 
     if not os.path.exists(opentxtdat):
         print 'not heave file:%s'%(opentxtdat)
@@ -431,6 +431,6 @@ def testWithID(tid):
 
 if __name__ == '__main__':  
     # main()
-    testWithID('002355')
+    testWithID('002401')
     
     
