@@ -109,7 +109,7 @@ def watchDogFileChange(fpth):
         if lasthash == '':
             lasthash = tmphash
             watchDogSendMsg(my,True)
-            print 'watchDog start:'%(DateTool.getNowStrYMDhms())
+            print 'watchDog start:%s'%(DateTool.getNowStrYMDhms())
         elif lasthash == tmphash:
             watchDogSendMsg(my)
             print 'watch alarm at:%s'%(DateTool.getNowStrYMDhms())
