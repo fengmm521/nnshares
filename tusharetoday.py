@@ -120,7 +120,7 @@ def getTodatStartAndEndDateWithLastNum(numDay = 180):
 
 
 
-def getTodatDataFrom126():
+def getTodatDataFromTushar():
     excelfile1 = 'xlsx/tusharedat.xlsx'
     # excelfile2 = 'xlsx/2016code2.xlsx'
     id1s = getAllCodeID(excelfile1)
@@ -156,8 +156,45 @@ def getTodatDataFrom126():
                 time.sleep(10)
 
 
+def testDownWithID(tid):
+    
+    sdate,edate = getTodatStartAndEndDateWithLastNum()
+    #shutil.rmtree(dbDir)#删除目录下所有文件
+
+    recallback = []
+
+    if not os.path.exists(dbDir):
+        pathtool.makeDirs('.', dbDir)
+    t = tid
+    fname = dbDir + os.sep + t + '.csv'
+    if os.path.exists(fname):
+        os.remove(fname)
+    if not os.path.exists(fname):
+        isOK = downDBFunc(t,sdate,edate)
+        if not isOK:
+                recallback.append(t)    
+        time.sleep(3)
+
+    #第一次下载出错后，会重复下载数据
+
+    while recallback:
+        tmpcall = List(recallback)
+        f = open('recalllog.txt','a')
+        f.write(str(tmpcall) + '\n\n')
+        f.close()
+        recallback = []
+        for t in tmpcall:
+            fname = dbDir + os.sep + t + '.csv'
+            if not os.path.exists(fname):
+                isOK = downDBFunc(t,sdate,edate)
+                if not isOK:
+                    recallback.append(t)    
+                time.sleep(10)
+
+
 def main():
-    getTodatDataFrom126()
+    getTodatDataFromTushar()
     
 if __name__ == '__main__':  
-    main()
+    # main()
+    testDownWithID('002341')
