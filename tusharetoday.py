@@ -13,6 +13,8 @@ import pathtool
 
 import tushare as tstool
 
+import re
+
 #将所有Excel文件转为xml文件
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
@@ -195,6 +197,28 @@ def testDownWithID(tid):
 def main():
     getTodatDataFromTushar()
     
+
+def isTID(tid):
+    pattern = re.compile(r'd{6}')
+ 
+    #使用Pattern匹配文本，获得匹配结果，无法匹配时将返回None
+    match = pattern.match(tid)
+ 
+    if match:
+        return True
+    else:
+        return False
+
 if __name__ == '__main__':  
-    # main()
-    testDownWithID('002341')
+    args = sys.argv
+    tid = ''
+    if len(args) == 2:
+        tmp = str(args[1])
+        if isTID(tmp)
+            tid = tmp
+
+    if tid != '':
+        testDownWithID(tid)
+    else:
+        main()
+    
