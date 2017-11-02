@@ -78,6 +78,7 @@ def downDBFunc(codeid,startdate,enddate):
 
         savename = dbDir + os.sep + codeid + '.csv'
         df2.to_csv(savename)
+        print 'save file:%s'%(savename)
         return True
     except urllib2.URLError, e:  
         if isinstance(e.reason, socket.timeout):  
@@ -133,6 +134,8 @@ def getTodatDataFromTushar():
 
     recallback = []
 
+    print 'start download data:%d'%(len(idkeys))
+
     if not os.path.exists(dbDir):
         pathtool.makeDirs('.', dbDir)
     for t in idkeys:
@@ -142,6 +145,8 @@ def getTodatDataFromTushar():
             if not isOK:
                 recallback.append(t)    
             time.sleep(5)
+
+    print 'downloading erro data:%d'%(len(recallback))
 
     while recallback:
         tmpcall = List(recallback)
@@ -156,7 +161,7 @@ def getTodatDataFromTushar():
                 if not isOK:
                     recallback.append(t)    
                 time.sleep(10)
-
+    print 'down data end!'
 
 def testDownWithID(tid):
     
@@ -171,10 +176,11 @@ def testDownWithID(tid):
     fname = dbDir + os.sep + t + '.csv'
     if os.path.exists(fname):
         os.remove(fname)
+        print 'remove file:%s'%(fname)
     if not os.path.exists(fname):
         isOK = downDBFunc(t,sdate,edate)
         if not isOK:
-                recallback.append(t)    
+            recallback.append(t)    
         time.sleep(3)
 
     #第一次下载出错后，会重复下载数据
@@ -199,7 +205,7 @@ def main():
     
 
 def isTID(tid):
-    pattern = re.compile(r'd{6}')
+    pattern = re.compile(r'\d{6}')
  
     #使用Pattern匹配文本，获得匹配结果，无法匹配时将返回None
     match = pattern.match(tid)
@@ -211,12 +217,13 @@ def isTID(tid):
 
 if __name__ == '__main__':  
     args = sys.argv
+    print args
     tid = ''
     if len(args) == 2:
         tmp = str(args[1])
-        if isTID(tmp)
+        print 'ddd',tmp
+        if isTID(tmp):
             tid = tmp
-
     if tid != '':
         testDownWithID(tid)
     else:

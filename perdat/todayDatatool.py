@@ -196,6 +196,8 @@ def getPerdataWithOutLable(dat100,pDay):
         return
 
     lastclose = perdat[-1][3]
+    if lastclose <= 0.0:
+        return
 
     for d in perdat:
         tmp0 = (d[0] - lastclose)/(3*lastclose)
@@ -274,7 +276,8 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
 
     tmpd = datall[1:]
    
-    if len(tmpd) < 110:
+    if len(tmpd) < 100:
+        print '%s  data line number is not 110,is:%s:'%(tid,len(tmpd))
         return None
 
 
@@ -297,8 +300,12 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
 
     for d in perdata:
         newppdat = getPerdataWithOutLable(d,pDay)
-        newsavedat.append(newppdat)
+        if newppdat:
+            newsavedat.append(newppdat)
 
+    if not newsavedat:
+        print 'not heave data to save:%s'%(tid)
+        return
 
     dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/todaydata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
     dirpath = 'todaydata/tmp' + str(pDay) + '_' + str(labDayCount)
@@ -431,6 +438,6 @@ def testWithID(tid):
 
 if __name__ == '__main__':  
     # main()
-    testWithID('002401')
+    testWithID('002341')
     
     

@@ -323,7 +323,7 @@ def test():
     # rlist = loadListFromFileWithJson('aaa.txt')
     # print rlist
     # tid = 'SH'+'601766'
-    tid = 'SZ' + '002401'
+    tid = 'SZ' + '002341'
     print tid
     # getTureTableIndex(0, 0, 12)
     # print getXYFromTureTable(50, 12)
