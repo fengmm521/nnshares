@@ -105,16 +105,24 @@ def runNN(inport,outport,dats,tid): #500,529
                     break
         cross_entropy_log = tid + '->' + cross_entropy_log + '\n'
 
-        f = open('erro/crosslog.txt','a')
+        logpth = 'erro/crosslog.txt'
+        if inport != 100 or outport != 5:
+            logpth = 'erro/crosslog_' + str(inport) + '_' + str(outport) + '.txt' 
+
+        f = open(logpth,'a')
         f.write(cross_entropy_log)
         f.close()
         savedirpth = 'nndata/' + tid
+
+        if inport != 100 or outport != 5:
+            savedirpth = 'nndata_' + str(inport) + '_' + str(outport) + '/' + tid
 
         if os.path.exists(savedirpth):
             pathtool.removeDirTree(savedirpth)
         if not os.path.exists(savedirpth):
             pathtool.makeDirs('.', savedirpth)
         savepth = savedirpth + '/' + tid + '.tens'
+
 
 
         outw1 = sess.run(w1)

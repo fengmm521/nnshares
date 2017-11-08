@@ -193,17 +193,21 @@ def createTrainMadelWithDatalist(dats,tid):
     print '--------------%s----------------'%(tid)
 
 
-def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7,isRunNN = True):
+def createNNCOuntDayTmpData(tid,pDay,labDayCount,isRunNN = True):
     f = open('qfqdata/' + tid + '.csv','r')
     tmpd = f.readlines()[1:]
     f.close()
+
+    noEnoughpth = 'erro/noEnough.txt'
+    if pDay != 100 or labDayCount != 5:
+        noEnoughpth = 'erro/noEnough_' + str(pDay) + '_' + str(labDayCount) + '.txt'
 
     if len(tmpd) < 110:
         print 'data long is not enough 110.tid is:%s'%(tid)
         if not os.path.exists('erro'):
             os.mkdir('erro')
         outstr = str(tid) + ',tmpd:%d\n'%(len(tmpd))
-        f = open('erro/noEnough.txt','a')
+        f = open(noEnoughpth,'a')
         f.write(outstr)
         f.close()
         return None
