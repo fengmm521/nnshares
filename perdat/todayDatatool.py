@@ -267,7 +267,7 @@ def getdataTypeList(handdat):
     outs = [openidx,highidx,lowidx,closeidx,hslvidx]
     return outs
 
-def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
+def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount):
     f = open(dataDir +'/' + tid + '.csv','r')
     datall = f.readlines()
     f.close()
@@ -276,16 +276,14 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
 
     tmpd = datall[1:]
    
-    if len(tmpd) < 100:
-        print '%s  data line number is not 110,is:%s:'%(tid,len(tmpd))
+    if len(tmpd) < pDay:
+        print '%s  data line number is not %d,is:%s:'%(tid,pDay,len(tmpd))
         return False
 
 
     #code,time,open,high,low,close,volume,turn,trate
     perdata = []   #per data is 100 lines,data from after to now
     lcount = len(tmpd)
-
-    zeroCount = 0
 
     for n in range(len(tmpd)):
         if n+pDay <= lcount:
@@ -301,9 +299,13 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
                 d4 = float(ds[handidxs[3]])
                 d5 = float(ds[handidxs[4]])
                 ppdat.append([d1,d2,d3,d4,d5])
-                if d1 == 0.0 and d2 == 0.0 and d3 == 0.0:
-                    zeroCount += 1
             perdata.append(ppdat)
+
+    enddats = perdata[-1]
+    zeroCount = 0
+    for d in enddats:
+        if d[0] == 0.0 and d[1] == 0.0 and d[2] == 0.0:
+            zeroCount += 1
 
 
     if zeroCount >= 1:
