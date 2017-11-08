@@ -5,6 +5,8 @@
 *.PYC
 *.TXT
 *.txt
+*.inout
+*.tens
 perdat/nnout
 perdat/todaydata
 perdat/erro

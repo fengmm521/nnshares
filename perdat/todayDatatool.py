@@ -438,6 +438,6 @@ def testWithID(tid):
 
 if __name__ == '__main__':  
     # main()
-    testWithID('002341')
+    testWithID('600782')
     
     
