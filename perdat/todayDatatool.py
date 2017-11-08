@@ -278,7 +278,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
    
     if len(tmpd) < 100:
         print '%s  data line number is not 110,is:%s:'%(tid,len(tmpd))
-        return None
+        return False
 
 
     #code,time,open,high,low,close,volume,turn,trate
@@ -317,7 +317,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
         f.close()
         if zeroCount > 3:
             print 'stop code is more than 3,tid:%s'%(tid)
-            return
+            return False
 
     newsavedat = []
 
@@ -328,7 +328,7 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
 
     if not newsavedat:
         print 'not heave data to save:%s'%(tid)
-        return
+        return False
 
     dirpath = '/media/mage/000FBF7E00093795/linuxfiles/perdata/todaydata/' + 'tmp' + str(pDay) + '_' + str(labDayCount)
     dirpath = 'todaydata/tmp' + str(pDay) + '_' + str(labDayCount)
@@ -344,6 +344,8 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
         os.mkdir(dirpath)
     savepath = dirpath + os.sep + tid + '.txt'
     saveListToFileWithJson(savepath, perdata)
+
+    return True
 
 
 def createNN100DayTmpData(tid,labDay = 5):
@@ -383,9 +385,9 @@ def conventXYToPecent(xydic):
 
     return out
 
-def trainTodayData(tid):
+def trainTodayData(tid,pDay,lcount):
 
-    opentxtdat = 'todaydata/tmp100_5/' + tid + '.txt'
+    opentxtdat = 'todaydata/tmp' + str(pDay) + '_' + str(lcount) + '/' + tid + '.txt'
 
     if not os.path.exists(opentxtdat):
         print 'not heave file:%s'%(opentxtdat)
@@ -399,9 +401,20 @@ def trainTodayData(tid):
     # print len(dats[0])
     # outdats = nntensorflow.getTrainResult(dats[-1], tid)
     outdats = nntensorflow.getTrainResultNewOP(dats[-1], tid)
-    
+    if outdats == None or (not outdats.size):
+        print 'not train net data for tid:%s'%(tid)  
+        dirpth = 'todaydata/erro'
+        if not os.path.exists(dirpth):
+            os.mkdir(dirpth)
+        saveerropth = dirpth + '/notNetCode' + str(pDay) + '.txt'
+        savestr = tid + ',notNetCode' +'\r\n'
+        f = open(saveerropth,'a')
+        f.write(savestr)
+        f.close()
+        return  
 
     outsort = []
+
     for n in range(len(outdats)):
         outsort.append([n,outdats[n]])
     # print outsort
@@ -443,20 +456,28 @@ def test():
 
 def main():
     ids = getAllQFQDataID()
+
+    dirpth = 'todaydata/erro'
+    if os.path.exists(dirpth):
+        shutil.rmtree(dirpth)
+
+    trainCount = 0
+
     index = 0
     for t in ids:
         index += 1
         print index,t
-        createNN100DayTmpData(t)
-        # createNN30DayTmpData(t)
-        # createNN10DayTmpData(t)
-    for t in ids:
-        trainTodayData(t)
+        if createNN100DayTmpData(t,5):
+            time.sleep(0.2)
+            trainTodayData(t,100,5)
+            trainCount += 1
+
+    print 'train count:',trainCount
 
 def testWithID(tid):
-    createNN100DayTmpData(tid)
+    createNN100DayTmpData(tid,5)
     time.sleep(1)
-    trainTodayData(tid)
+    trainTodayData(tid,100,5)
 
 
 if __name__ == '__main__':  

@@ -164,7 +164,7 @@ def getTrainResultNewOP(dats,tid):
     inoutpth = savedirpth + '/' + tid + '.tens'
     if not os.path.exists(inoutpth):
         print 'not save in and out p count:%s'%(inoutpth)
-        return
+        return None
 
     f = open(inoutpth,'r')
     tmpstr = f.read()
@@ -204,7 +204,7 @@ def getTrainResultNewOP(dats,tid):
     inoutpth = savedirpth + '/' + tid + '.inout'
     if not os.path.exists(inoutpth):
         print 'not save in and out p count:%s'%(inoutpth)
-        return
+        return None
 
     f = open(inoutpth,'r')
     tmpstr = f.read()

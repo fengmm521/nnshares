@@ -144,7 +144,7 @@ def getTodatDataFromTushar():
             isOK = downDBFunc(t,sdate,edate)
             if not isOK:
                 recallback.append(t)    
-            time.sleep(5)
+            time.sleep(0.8)
 
     print 'downloading erro data:%d'%(len(recallback))
 
@@ -160,7 +160,7 @@ def getTodatDataFromTushar():
                 isOK = downDBFunc(t,sdate,edate)
                 if not isOK:
                     recallback.append(t)    
-                time.sleep(10)
+                time.sleep(2)
     print 'down data end!'
 
 def testDownWithID(tid):
