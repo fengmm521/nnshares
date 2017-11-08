@@ -8,6 +8,8 @@ import urllib2
 import socket  
 import shutil 
 
+import signal
+
 import DateTool
 import pathtool
 
@@ -23,6 +25,47 @@ txtCoding = 'utf-8'
 
 class MyException(Exception):  
         pass 
+
+
+import signal, functools
+ 
+ 
+class TimeoutError(Exception): pass
+ 
+ 
+def timeout(seconds, error_message="Timeout Error: the cmd 30s have not finished."):
+    def decorated(func):
+        result = ""
+ 
+        def _handle_timeout(signum, frame):
+            global result
+            result = error_message
+            raise TimeoutError(error_message)
+ 
+        def wrapper(*args, **kwargs):
+            global result
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+ 
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+                return result
+            return result
+ 
+        return functools.wraps(func)(wrapper)
+ 
+    return decorated
+ 
+ 
+# @timeout(5)  # 限定下面的slowfunc函数如果在5s内不返回就强制抛TimeoutError Exception结束
+# def slowfunc(sleep_time):
+#     a = 1
+#     import time
+#     time.sleep(sleep_time)
+#     return a
+
 
 def cur_file_dir():
     #获取脚本路径
@@ -63,6 +106,7 @@ def getAllExtFile(path,fromatx = ".txt"):
                 jsonfilelist.append(jsonArr)
     return jsonfilelist
 
+@timeout(5) # 限定下面的downDBFunc函数如果在5s内不返回就强制抛TimeoutError Exception结束
 def downDBFunc(codeid,startdate,enddate):
     try:  
         tstool.set_token('c8697bdda449438ececb003f8ec3ce15ab785d49d825b07d84330f33c2a614cf')
@@ -72,6 +116,7 @@ def downDBFunc(codeid,startdate,enddate):
         # if len(codeid) > 6:
         #     cid = codeid[2:]
 
+
         print 'get id =',codeid
 
         df2 = st.MktEqudAdj(beginDate=startdate,endDate=enddate,ticker=codeid)
@@ -80,12 +125,8 @@ def downDBFunc(codeid,startdate,enddate):
         df2.to_csv(savename)
         print 'save file:%s'%(savename)
         return True
-    except urllib2.URLError, e:  
-        if isinstance(e.reason, socket.timeout):  
-            print 'timeout erro'
-        else:  
-            # reraise the original error  
-            print 'other erro'
+    except TimeoutError:  
+        print 'time out'
     return False
 #将EXCEL表转换为json文件
 def getAllCodeID(fullfilename = 'xlsx/tusharedat.xlsx'):
@@ -144,7 +185,7 @@ def getTodatDataFromTushar():
             isOK = downDBFunc(t,sdate,edate)
             if not isOK:
                 recallback.append(t)    
-            time.sleep(0.8)
+            time.sleep(0.3)
 
     print 'downloading erro data:%d'%(len(recallback))
 
@@ -160,7 +201,9 @@ def getTodatDataFromTushar():
                 isOK = downDBFunc(t,sdate,edate)
                 if not isOK:
                     recallback.append(t)    
-                time.sleep(2)
+                time.sleep(0.3)
+        time.sleep(5)
+        
     print 'down data end!'
 
 def testDownWithID(tid):
