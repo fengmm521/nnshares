@@ -284,6 +284,9 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
     #code,time,open,high,low,close,volume,turn,trate
     perdata = []   #per data is 100 lines,data from after to now
     lcount = len(tmpd)
+
+    zeroCount = 0
+
     for n in range(len(tmpd)):
         if n+pDay <= lcount:
             ppdat = []
@@ -292,9 +295,29 @@ def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount = 7):
                 tmpl = tmpl.replace('\r','')
                 tmpl = tmpl.replace('\n','')
                 ds = tmpl.split(',')
-                ppdat.append([float(ds[handidxs[0]]),float(ds[handidxs[1]]),float(ds[handidxs[2]]),float(ds[handidxs[3]]),float(ds[handidxs[4]])])
+                d1 = float(ds[handidxs[0]])
+                d2 = float(ds[handidxs[1]])
+                d3 = float(ds[handidxs[2]])
+                d4 = float(ds[handidxs[3]])
+                d5 = float(ds[handidxs[4]])
+                ppdat.append([d1,d2,d3,d4,d5])
+                if d1 == 0.0 and d2 == 0.0 and d3 == 0.0:
+                    zeroCount += 1
             perdata.append(ppdat)
 
+
+    if zeroCount >= 1:
+        dirpth = 'todaydata/erro'
+        if not os.path.exists(dirpth):
+            os.mkdir(dirpth)
+        saveerropth = dirpth + '/stopcode' + str(pDay) + '.txt'
+        savestr = tid + ',' + str(zeroCount) +'\r\n'
+        f = open(saveerropth,'a')
+        f.write(savestr)
+        f.close()
+        if zeroCount > 3:
+            print 'stop code is more than 3,tid:%s'%(tid)
+            return
 
     newsavedat = []
 
@@ -437,7 +460,7 @@ def testWithID(tid):
 
 
 if __name__ == '__main__':  
-    # main()
-    testWithID('600782')
+    main()
+    # testWithID('002341')
     
     
