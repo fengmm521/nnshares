@@ -190,7 +190,7 @@ def getTodatDataFromTushar():
     print 'downloading erro data:%d'%(len(recallback))
 
     while recallback:
-        tmpcall = List(recallback)
+        tmpcall = list(recallback)
         f = open('recalllog.txt','a')
         f.write(str(tmpcall) + '\n\n')
         f.close()
@@ -203,7 +203,7 @@ def getTodatDataFromTushar():
                     recallback.append(t)    
                 time.sleep(0.3)
         time.sleep(5)
-        
+
     print 'down data end!'
 
 def testDownWithID(tid):

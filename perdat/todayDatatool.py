@@ -267,7 +267,7 @@ def getdataTypeList(handdat):
     outs = [openidx,highidx,lowidx,closeidx,hslvidx]
     return outs
 
-def createNNCOuntDayTmpData(tid,pDay = 100,labDayCount):
+def createNNCOuntDayTmpData(tid,pDay,labDayCount):
     f = open(dataDir +'/' + tid + '.csv','r')
     datall = f.readlines()
     f.close()

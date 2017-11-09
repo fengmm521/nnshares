@@ -166,7 +166,7 @@ def getTrainResultNewOP(dats,tid):
         print 'not save in and out p count:%s'%(inoutpth)
         return None
 
-    fsize = os.path.getsize(inoutpth):
+    fsize = os.path.getsize(inoutpth)
     fsizemb = fsize/(1024*1024)
     if fsizemb <= 3:
         print 'file size is too small than 3m,tid:%s'%(tid)
