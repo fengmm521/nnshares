@@ -15,6 +15,48 @@ import tushare as ts
 
 import DateTool
 
+import time
+
+
+
+def getAllShareListWithToday(todaydate,isfirst = True):
+
+    if not isfirst:
+        print '等待5秒后开始下载今天股票列表'
+        time.sleep(5)
+
+    xldir = 'xlsx/' + str(todaydate)
+
+    if not os.path.exists(xldir):
+        os.mkdir(xldir)
+
+    savepth = xldir + '/tusharedat.csv'
+
+
+    if os.path.exists(savepth):
+        print '%s股票列表已下载。保存在:%s'%(str(todaydate),savepth)
+    else:
+        print '今天股票列表未下载，正在下载。。。。'
+        dat = ts.get_stock_basics()     #获取所有股票业绩
+        dat.to_csv(savepth)
+        print '今天股票列表下载完成，保存在:%s'(savepth)
+
+
+def getShareGaiNian(todaydate,isfirst = False):
+
+    if not isfirst:
+        print '等待5秒后开始下载今天股票概念数据列表'
+        time.sleep(5)
+
+    savepth = xldir + '/gainian.csv'
+
+    if os.path.exists(savepth):
+        print '%s股票概念列表已下载，保存在:%s'%(str(todaydate),savepth)
+    else:
+        print '正在下载今天的股票概念列表。。。。'
+        gndat = ts.get_concept_classified()
+        gndat.to_csv()
+        print '今天股票概念已下载完成，保存在:%s'%(savepth)
 
 def main():
     #shutil.rmtree(dbDir)#删除目录下所有文件
@@ -26,18 +68,11 @@ def main():
     todaydate = DateTool.getNowNumberDate()
     print todaydate
 
-    xldir = 'xlsx/' + str(todaydate)
+    getAllShareListWithToday(todaydate)
 
-    if os.path.exists(xldir):
-        print 'today xlsx has downloaded,today date:%s'%(str(todaydate))
-    else:
-        os.mkdir(xldir)
+    getShareGaiNian(todaydate)
 
-    savepth = xldir + '/tusharedat.xlsx'
-    dat = ts.get_stock_basics()     #获取所有股票业绩
-    dat.to_excel(savepth)
 
-    print 'download today xlsx data is ok:%s'%(savepth)
 if __name__ == '__main__':  
     main()
     
