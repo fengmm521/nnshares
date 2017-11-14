@@ -7,13 +7,15 @@ import time
 import selenium.webdriver.chrome.webdriver as  wd
 
 
-def main():
+def getManager(wdriver,tid):
+
+    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
 
     datas = {}
 
-    browser = wd.WebDriver('/Users/mage/Documents/tool/cmdtool/chromedriver')
-    # browser = webdriver.phantomjs()
-    browser.get('http://basic.10jqka.com.cn/300715/company.html')
+    browser = wdriver
+    
+    browser.get(hurl)
 
     # tabtext = browser.find_element_by_xpath("//div[@id=’manager’ and @stat='company_manager']")
     manger = browser.find_element_by_id('manager')
@@ -91,20 +93,121 @@ def main():
 
     datas['gg'] = dattmps
 
-    # browser.quit()
-    
-    browser.quit()
-
-    str = raw_input("input any key to end: ")  #raw_input()函数读取的是键盘上输入的字符串
-    # str = input("Enter your input: ");       #input()函数可以读取一个字符串
-
-    for k in datas.keys():
-        dat = datas[k]
-        for d in dat:
-            print d
-        str = raw_input("input any key to end: ")  #raw_input()函数读取的是键盘上输入的字符串
+    return datas
     
 
+#获取企业详细信息
+def getCompanyMsg(wdriver,tid):
+    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+
+    datas = {}
+
+    browser = wdriver
+    
+    browser.get(hurl)
+
+    company = browser.find_element_by_id('detail')
+    # hd = company.find_element_by_class_name('hd')
+    bd = company.find_element_by_class_name('bd')
+
+    # print hd.text
+    # browser.find_element_by_id('kw').send_keys('selenium')
+    # browser.find_element_by_id('su').click()
+    bdtitle = bd.find_element_by_class_name('m_table')                       #公司名称，所属地，主页,曾用名
+
+    outstr =  bdtitle.text + '\n'
+
+
+    othmsg = bd.find_element_by_class_name('ggintro')                      #ggintro
+
+    # print othmsg.text
+    outstr += othmsg.text
+
+    return outstr
+
+
+#获取企业发行相关
+def getPublishMsg(wdriver,tid):
+    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+
+    datas = {}
+
+    browser = wdriver
+    
+    browser.get(hurl)
+
+    company = browser.find_element_by_id('publish')
+    # hd = company.find_element_by_class_name('hd')
+    bd = company.find_element_by_class_name('bd')
+
+    morebtn = bd.find_element_by_class_name('more')
+    morebtn.click()
+
+    bdtitle = bd.find_element_by_class_name('m_table')                       #公司名称，所属地，主页,曾用名
+
+    outmsg = bdtitle.text
+
+    return outmsg
+
+def getSharesCompanys(wdriver,tid):
+
+    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+
+    datas = {}
+
+    browser = wdriver
+    
+    browser.get(hurl)
+
+    share = browser.find_element_by_id('share')
+
+    pagescroll = share.find_element_by_class_name('pagescroll')
+
+    business = share.find_element_by_class_name('business')
+    
+
+    mcap = business.find_element_by_class_name('m_cap')
+
+    listhand = business.find_element_by_xpath('//*[@id="ckg_table"]/thead')
+
+
+    outstr = mcap.text + '\n' + listhand.text + '\n'
+    # print outstr  //*[@id="ckg_table"]/tbody
+    tmpstrs = pagescroll.text.split('\n')
+    for p in tmpstrs:
+        ckgkey = 'ckg_table_fy' + p
+        pagebtn = pagescroll.find_element_by_id(ckgkey).find_element_by_link_text(p)
+        pagebtn.click()
+        time.sleep(0.3)
+        companys = business.find_element_by_xpath('//*[@id="ckg_table"]/tbody')
+        outstr += companys.text + '\n'
+        
+    return outstr
+
+
+def main():
+
+    wdriver = wd.WebDriver('/Users/mage/Documents/tool/cmdtool/chromedriver')       #test
+    # browser = webdriver.phantomjs()
+
+    #企业高管信息
+    # datdic = getManager(wdriver,tid)                                                #获取高管信息
+
+    #公司详情
+    # companymsg = getCompanyMsg(wdriver, '603289')
+    # print companymsg
+
+    #获取发行信息
+    # outmsg = getPublishMsg(wdriver, '603289')
+    # print outmsg
+
+    #获取参股企业
+    # outmsg = getSharesCompanys(wdriver, '600050')
+    # print outmsg
+
+    raw_input('input enter for end.')
+
+    wdriver.quit()
 
 #测试
 if __name__ == '__main__':
