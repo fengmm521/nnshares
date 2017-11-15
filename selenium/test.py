@@ -6,16 +6,16 @@ import time
 
 import selenium.webdriver.chrome.webdriver as  wd
 
+#获取高官信息
+# def getManager(wdriver,tid):
+def getManager(browser):
 
-def getManager(wdriver,tid):
-
-    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+    # hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+    # browser = wdriver
+    
+    # browser.get(hurl)
 
     datas = {}
-
-    browser = wdriver
-    
-    browser.get(hurl)
 
     # tabtext = browser.find_element_by_xpath("//div[@id=’manager’ and @stat='company_manager']")
     manger = browser.find_element_by_id('manager')
@@ -97,14 +97,15 @@ def getManager(wdriver,tid):
     
 
 #获取企业详细信息
-def getCompanyMsg(wdriver,tid):
-    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+# def getCompanyMsg(wdriver,tid):
+def getCompanyMsg(browser):
+    # hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
 
-    datas = {}
+    # datas = {}
 
-    browser = wdriver
+    # browser = wdriver
     
-    browser.get(hurl)
+    # browser.get(hurl)
 
     company = browser.find_element_by_id('detail')
     # hd = company.find_element_by_class_name('hd')
@@ -127,14 +128,15 @@ def getCompanyMsg(wdriver,tid):
 
 
 #获取企业发行相关
-def getPublishMsg(wdriver,tid):
-    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+# def getPublishMsg(wdriver,tid):
+def getPublishMsg(browser):
+    # hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
 
-    datas = {}
+    # # datas = {}
 
-    browser = wdriver
+    # browser = wdriver
     
-    browser.get(hurl)
+    # browser.get(hurl)
 
     company = browser.find_element_by_id('publish')
     # hd = company.find_element_by_class_name('hd')
@@ -149,15 +151,14 @@ def getPublishMsg(wdriver,tid):
 
     return outmsg
 
-def getSharesCompanys(wdriver,tid):
+# def getSharesCompanys(wdriver,tid):
 
-    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+def getSharesCompanys(browser):
+    # hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
 
-    datas = {}
-
-    browser = wdriver
+    # browser = wdriver
     
-    browser.get(hurl)
+    # browser.get(hurl)
 
     share = browser.find_element_by_id('share')
 
@@ -181,9 +182,40 @@ def getSharesCompanys(wdriver,tid):
         time.sleep(0.3)
         companys = business.find_element_by_xpath('//*[@id="ckg_table"]/tbody')
         outstr += companys.text + '\n'
-        
+
     return outstr
 
+
+#获取公司资料
+def companyMsg(tid):
+    wdriver = wd.WebDriver('/Users/mage/Documents/tool/cmdtool/chromedriver')       #test
+
+    hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
+
+    wdriver.get(hurl)
+
+    outdic = {} 
+
+    #公司详情
+    companymsg = getCompanyMsg(wdriver)
+    # print companymsg
+    outdic['xxqk'] = companymsg
+
+    #企业高管信息
+    datdic = getManager(wdriver)                                                #获取高管信息
+    outdic['ggjs'] = datdic
+
+    #获取发行信息
+    fxmsg = getPublishMsg(wdriver)
+    # print fxmsg
+    outdic['fxxg'] = fxmsg
+
+    #获取参股企业
+    outmsg = getSharesCompanys(wdriver)
+    # print outmsg
+    outdic['cgkggs'] = outmsg
+
+    return outdic
 
 def main():
 
@@ -209,9 +241,14 @@ def main():
 
     wdriver.quit()
 
+def test():
+    comdic = companyMsg('600050')
+    print comdic
+
 #测试
 if __name__ == '__main__':
-    main()
+    # main()
+    test()
 
 
 
