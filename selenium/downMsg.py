@@ -89,21 +89,13 @@ def downShareWithTID(tid,savedir,savename):
     f.close()
     return True
 
-def getGongGaoLastDate(pth):
+def getGongGaoLastTextMd5(pth):
 
     if os.path.exists(pth): 
         f = open(pth,'r')
-        lines = f.readlines()
+        md5str = f.read()
         f.close()
-
-        dates = []
-        for l in lines:
-            if len(l) > 3:
-                tmpdate = l.split('|')[0]
-                dates.append(tmpdate)
-        dates.sort(reverse = False)
-        print dates[0],dates[-1]
-        return dates[0]
+        return md5str
     else:
         return None
 
@@ -112,15 +104,16 @@ def downShareGongGaoWithTID(tid,savedir,savename):
     if not os.path.exists(savedir):
         os.mkdir(savedir)
 
+    lastmd5pth = savedir + os.sep + 'lastmd5.txt'
+    lastMd5 = getGongGaoLastTextMd5(lastmd5pth)
+        
     savepth = savedir + os.sep + savename
-    lastDate = getGongGaoLastDate(savepth)
-        
     sharetool = GongGaoTool.GongGaoTool()
-    datas = sharetool.companyMsg(tid,lastDate)
+    datas,md5str = sharetool.companyMsg(tid,lastMd5)
     if not datas:
-        print '%s 未发布新公告或者未获取到数据'
+        print '%s 未发布新公告或者未获取到数据'%(tid)
         return False
-        
+    
     # tmpstr = json.dumps(comdic,ensure_ascii=False)
     outstr = ''
     for d in datas:
@@ -129,6 +122,13 @@ def downShareGongGaoWithTID(tid,savedir,savename):
     f = open(savepth,'a')
     f.write(outstr)
     f.close()
+    f = open(lastmd5pth,'w')
+    f.write(md5str)
+    f.close()
+
+    # sharetool.wdriver.quit()
+    
+
     return True
 
 #获取所有股票今天的信息数据
@@ -160,11 +160,26 @@ def getAllShareGongGao():
         os.mkdir(todaypth)
 
     ids = getAllShareID()
+
+    heaveNews = []
+
     for tid in ids:
         print '开始下载:',tid
         savedir = todaypth + os.sep + tid
-        downShareGongGaoWithTID(tid, savedir,'gonggao.txt')
+        if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
+            heaveNews.append(tid)
         time.sleep(2)
+    
+    print '今天获取新数据有%d个'%(len(heaveNews))
+    print '有新公告股票ID存在new.csv中'
+
+    newstr = ''
+    for i in heaveNews:
+        newstr += i + '\n'
+
+    f = open('new.csv','w')
+    f.write(newstr)
+    f.close()
 
 
 def main():

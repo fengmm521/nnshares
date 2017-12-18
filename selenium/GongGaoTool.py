@@ -5,6 +5,8 @@ import sys
 import time
 import chardet  #中文编码判断
 import urllib2
+import timetool
+import hashlib
 
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
@@ -27,13 +29,13 @@ class GongGaoTool(object):
         utf8str =  oldstr.decode(cnstrtype).encode('utf-8')
         return utf8str
 
-    def getGongGaoTitle(self,browser,lastDate):
+    def getGongGaoTitle(self,browser,lastMd5):
 
         # hurl = 'http://basic.10jqka.com.cn/%s/company.html'%(tid)
         # browser = wdriver
         
         # browser.get(hurl)
-
+        browser.implicitly_wait(10)
         # tabtext = browser.find_element_by_xpath("//div[@id=’manager’ and @stat='company_manager']")
         bardobj = browser.find_element_by_xpath('//*[@id="pub"]')
         # print bardobj.text
@@ -49,23 +51,6 @@ class GongGaoTool(object):
         #全部公告选项菜单
         allpub = browser.find_element_by_xpath('//*[@id="pub"]/div[2]/div[1]/ul/li[1]/a')                       #董事会菜单
 
-        #业绩公告菜单
-        bdjsh = browser.find_element_by_xpath('//*[@id="pub"]/div[2]/div[1]/ul/li[2]/a')                       #监事会菜单
-        # print '业绩公告:',bdjsh.text
-
-        #重大事项
-        zdsx = browser.find_element_by_xpath('//*[@id="pub"]/div[2]/div[1]/ul/li[3]/a')                       #高管菜单
-        # print '重大事项:',zdsx.text
-
-        #股份变动
-        gfbd = browser.find_element_by_xpath('//*[@id="pub"]/div[2]/div[1]/ul/li[4]/a')                       #高管菜单
-        # print '股份变动:',gfbd.text
-
-        #决议公告
-        jygg = browser.find_element_by_xpath('//*[@id="pub"]/div[2]/div[1]/ul/li[5]/a')                       #高管菜单
-        # print '决议公告:',jygg.text
-
-
         bddshcy = bd.find_element_by_id('pull_all')                    #公告内容
 
         nowpgcount = 1
@@ -74,6 +59,8 @@ class GongGaoTool(object):
         datas = []
 
         print '开始下载公告内容'
+
+        firstmsgmd5 = ''
 
         while nowpgcount != pgcount:
 
@@ -110,20 +97,26 @@ class GongGaoTool(object):
 
             print 'curren page %d/%d,%d title per page'%(nowpgcount,pgcount,len(gonggaotexts))
             
+            isLastDate = False
+
             for n in range(len(gonggaotexts)):
                 # turnto[n].click()                                         #打开成员详情
                 h = gonggaotexts[n]                                         #获取公告内容
+
                 try:
-                    link = h.find_element_by_class_name('client').get_attribute('href')
+                    # linkobj = h.find_element_by_class_name('client')
+                    linkobj = h.find_element_by_xpath('//dt/span[2]/a')
+                    link = linkobj.get_attribute('href')
                 except Exception as e:
-                    time.sleep(0.2)
-                    link = h.find_element_by_class_name('client').get_attribute('href')
+                    time.sleep(0.5)
+                    #//*[@id="pull_all"]/div[1]/dl[15]/dt/span[2]/a
+                    # linkobj = h.find_element_by_class_name('client')
+                    linkobj = h.find_element_by_xpath('//dt/span[2]/a')
+                    link = linkobj.get_attribute('href')
                 
                 tmpstr = self.conventStrTOUtf8(h.text)
                 tmptexts = tmpstr.split('\n')
 
-                if lastDate == tmptexts[0]:
-                    break
                 context = tmptexts[1]
                 if context.find('...') != -1:
                     # print context
@@ -136,19 +129,30 @@ class GongGaoTool(object):
                         endtitle = tmpcontext.find('</title>')
                         context = tmpcontext[titelstart:endtitle]
                     # print context
+                if context and context != '':
+                    textmd5 = hashlib.md5(context).hexdigest()
+                    if lastMd5 == textmd5:
+                        isLastDate = True
+                        break
+                    if firstmsgmd5 == '':
+                        firstmsgmd5 = textmd5
+                else:
+                    textmd5 = 'null'
+                tmpout = tmptexts[0] + '|' + context + '|' + link  + '|' +  textmd5 + '|' + timetool.getDateDayWith0() + '|' + str(timetool.timestamp2datetime(int(time.time()))) 
                 
-                tmpout = tmptexts[0] + '|' + context + '|' + link 
                 datas.append(tmpout)               #保存公告内容，有日期也有标题
+            if isLastDate:
+                print 'md5:%s之前数据已存在，只下载最新据数'%(lastMd5)
+                break
             if nowpgcount != pgcount:
                 time.sleep(0.3)
                 nextpageobj.find_element_by_link_text("下一页").click()
                 time.sleep(0.5)
-
-        return datas
+        return datas,firstmsgmd5
         
 
     #获取公司资料
-    def companyMsg(self,tid,lastDate = None):
+    def companyMsg(self,tid,lastMd5):
 
         if not self.wdriver:
             if self.isCmdMode:
@@ -168,10 +172,7 @@ class GongGaoTool(object):
         self.wdriver.get(hurl)
 
         #企业高管信息
-        datdic = self.getGongGaoTitle(self.wdriver,lastDate)                                                #获取高管信息
-
-        self.wdriver.quit()
-
+        datdic = self.getGongGaoTitle(self.wdriver,lastMd5)                                                #获取高管信息
         return datdic
 
     def getUrl(self,purl):
@@ -189,7 +190,7 @@ def main():
 
     sharetool = GongGaoTool(isCmdMode = False)
 
-    ggdats = sharetool.companyMsg('601933')
+    ggdats = sharetool.companyMsg('601933',None)
 
     for d in ggdats:
         tmpd = d
