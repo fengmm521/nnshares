@@ -21,6 +21,7 @@ sys.setdefaultencoding( "utf-8" )
 import tushare as ts
 
 import shareMsgDownTool
+import GongGaoTool
 
 def downloadSharelistWithTushare(savepth):
     dat = ts.get_stock_basics()     #获取所有股票业绩
@@ -88,12 +89,56 @@ def downShareWithTID(tid,savedir,savename):
     f.close()
     return True
 
+def getGongGaoLastDate(pth):
+
+    if os.path.exists(pth): 
+        f = open(pth,'r')
+        lines = f.readlines()
+        f.close()
+
+        dates = []
+        for l in lines:
+            if len(l) > 3:
+                tmpdate = l.split('|')[0]
+                dates.append(tmpdate)
+        dates.sort(reverse = False)
+        print dates[0],dates[-1]
+        return dates[0]
+    else:
+        return None
+
+def downShareGongGaoWithTID(tid,savedir,savename):
+
+    if not os.path.exists(savedir):
+        os.mkdir(savedir)
+
+    savepth = savedir + os.sep + savename
+    lastDate = getGongGaoLastDate(savepth)
+        
+    sharetool = GongGaoTool.GongGaoTool()
+    datas = sharetool.companyMsg(tid,lastDate)
+    if not datas:
+        print '%s 未发布新公告或者未获取到数据'
+        return False
+        
+    # tmpstr = json.dumps(comdic,ensure_ascii=False)
+    outstr = ''
+    for d in datas:
+        outstr += d + '\n'
+    outstr = outstr[:-1]
+    f = open(savepth,'a')
+    f.write(outstr)
+    f.close()
+    return True
+
 #获取所有股票今天的信息数据
 def getAllShareTodayMsg():
     if not os.path.exists('out'):
         os.mkdir('out')
+        os.mkdir('out/commsg')
+        os.mkdir('out/gonggao')
     todaynum = str(DateTool.getNowNumberDate())
-    todaypth = 'out/' + todaynum
+    todaypth = 'out/commsg/' + todaynum
     if not os.path.exists(todaypth):
         os.mkdir(todaypth)
 
@@ -104,9 +149,28 @@ def getAllShareTodayMsg():
         downShareWithTID(tid, savedir,'companymsg.txt')
         time.sleep(2)
 
+def getAllShareGongGao():
+    if not os.path.exists('out'):
+        os.mkdir('out')
+        os.mkdir('out/commsg')
+        os.mkdir('out/gonggao')
+    todaynum = str(DateTool.getNowNumberDate())
+    todaypth = 'out/gonggao/' + todaynum
+    if not os.path.exists(todaypth):
+        os.mkdir(todaypth)
+
+    ids = getAllShareID()
+    for tid in ids:
+        print '开始下载:',tid
+        savedir = todaypth + os.sep + tid
+        downShareGongGaoWithTID(tid, savedir,'gonggao.txt')
+        time.sleep(2)
+
+
 def main():
     
-    getAllShareTodayMsg()
+    # getAllShareTodayMsg()
+    getAllShareGongGao()
     
 if __name__ == '__main__':  
     main()
