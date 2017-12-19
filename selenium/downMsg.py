@@ -149,7 +149,7 @@ def getAllShareTodayMsg():
         downShareWithTID(tid, savedir,'companymsg.txt')
         time.sleep(2)
 
-def getAllShareGongGao():
+def getAllShareGongGao(starttid):
     if not os.path.exists('out'):
         os.mkdir('out')
         os.mkdir('out/commsg')
@@ -163,8 +163,22 @@ def getAllShareGongGao():
 
     heaveNews = []
 
+    idcount = len(ids)
+    ncount = 1
+
+
+    isStrtWithID = False
+
+    if starttid:
+        isStrtWithID = True
+
     for tid in ids:
-        print '开始下载:',tid
+        print '开始下载:%s,%d/%d'%(tid,ncount,idcount)
+        if isStrtWithID:
+            if tid == starttid:
+                isStrtWithID = False
+            else:
+                continue
         savedir = todaypth + os.sep + tid
         if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
             heaveNews.append(tid)
@@ -182,11 +196,18 @@ def getAllShareGongGao():
     f.close()
 
 
-def main():
+def main(starttid = None):
     
     # getAllShareTodayMsg()
-    getAllShareGongGao()
+    getAllShareGongGao(starttid)
     
 if __name__ == '__main__':  
-    main()
+    args = sys.argv
+    fpth = ''
+    if len(args) == 2 :
+        starttid = args[1]
+        print 'start from tid:%s'%(starttid)
+        main(starttid)
+    else:
+        main()
     

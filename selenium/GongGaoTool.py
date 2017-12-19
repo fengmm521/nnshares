@@ -114,10 +114,20 @@ class GongGaoTool(object):
                     linkobj = h.find_element_by_xpath('//dt/span[2]/a')
                     link = linkobj.get_attribute('href')
                 
-                tmpstr = self.conventStrTOUtf8(h.text)
-                tmptexts = tmpstr.split('\n')
+                
+                try:
+                    tmpstr = self.conventStrTOUtf8(h.text)
+                    tmptexts = tmpstr.split('\n')
+                    context = tmptexts[1]
+                except Exception as e:
+                    time.sleep(2)
+                    tmpstr = self.conventStrTOUtf8(h.text)
+                    tmptexts = tmpstr.split('\n')
+                    print tmptexts
+                    if tmptexts[0][0] == '2':
+                        tmptexts = [tmptexts[0][:10],tmptexts[0][10:]]
+                    context = tmptexts[1]
 
-                context = tmptexts[1]
                 if context.find('...') != -1:
                     # print context
                     print 'get text from url'
