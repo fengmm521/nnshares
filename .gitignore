@@ -7,5 +7,7 @@
 *.txt
 *.inout
 *.tens
+*.log
 perdat/nnout
 perdat/todaydata
+selenium/ghostdriver.log
