@@ -126,6 +126,8 @@ class GongGaoTool(object):
                     print tmptexts
                     if tmptexts[0][0] == '2':
                         tmptexts = [tmptexts[0][:10],tmptexts[0][10:]]
+                    elif tmptexts[0][2] == ':':
+                        tmptexts = [tmptexts[0][:5],tmptexts[0][5:]]
                     context = tmptexts[1]
 
                 if context.find('...') != -1:
