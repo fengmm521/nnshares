@@ -154,8 +154,8 @@ def getAllShareGongGao():
         os.mkdir('out')
         os.mkdir('out/commsg')
         os.mkdir('out/gonggao')
-    todaynum = str(DateTool.getNowNumberDate())
-    todaypth = 'out/gonggao/' + todaynum
+    # todaynum = str(DateTool.getNowNumberDate())
+    todaypth = 'out/gonggao/20171218'
     if not os.path.exists(todaypth):
         os.mkdir(todaypth)
 

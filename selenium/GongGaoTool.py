@@ -190,7 +190,7 @@ def main():
 
     sharetool = GongGaoTool(isCmdMode = False)
 
-    ggdats = sharetool.companyMsg('601933',None)
+    ggdats = sharetool.companyMsg('300103',None)
 
     for d in ggdats:
         tmpd = d
