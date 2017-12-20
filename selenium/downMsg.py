@@ -192,11 +192,11 @@ def getAllShareGongGao(starttid):
         savedir = todaypth + os.sep + tid
         try:
             if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
-            heaveNews.append(tid)
+                heaveNews.append(tid)
         except Exception as e:
             time.sleep(3)
             if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
-            heaveNews.append(tid)
+                heaveNews.append(tid)
         time.sleep(2)
     
     print '今天获取新数据有%d个'%(len(heaveNews))

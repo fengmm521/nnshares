@@ -20,4 +20,4 @@ LOG=`nohup python downMsg.py > log.txt 2>&1 & echo $!`
 echo $LOG
 OUTSTR=$DATE"|"$LOG
 # echo $OUTSTR > psid.txt
-python savePID.py $OUTSTR
+python savePID.py "$OUTSTR"
