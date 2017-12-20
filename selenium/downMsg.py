@@ -104,6 +104,10 @@ def downShareGongGaoWithTID(tid,savedir,savename):
     if not os.path.exists(savedir):
         os.mkdir(savedir)
 
+    f = open('erro.txt','w')
+    f.write(tid)
+    f.close()    
+
     lastmd5pth = savedir + os.sep + 'lastmd5.txt'
     lastMd5 = getGongGaoLastTextMd5(lastmd5pth)
         
@@ -169,6 +173,12 @@ def getAllShareGongGao(starttid):
 
     isStrtWithID = False
 
+
+    if os.path.exists('erro.txt'):
+        f = open('erro.txt','r')
+        starttid = f.read()
+        f.close()
+
     if starttid:
         isStrtWithID = True
 
@@ -180,12 +190,20 @@ def getAllShareGongGao(starttid):
             else:
                 continue
         savedir = todaypth + os.sep + tid
-        if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
+        try:
+            if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
+            heaveNews.append(tid)
+        except Exception as e:
+            time.sleep(3)
+            if downShareGongGaoWithTID(tid, savedir,'gonggao.txt'):
             heaveNews.append(tid)
         time.sleep(2)
     
     print '今天获取新数据有%d个'%(len(heaveNews))
     print '有新公告股票ID存在new.csv中'
+
+    if os.path.exists('erro.txt'):
+        os.remove('erro.txt')
 
     newstr = ''
     for i in heaveNews:
