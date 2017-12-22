@@ -71,31 +71,44 @@ class GongGaoTool(object):
                 gonggaotexts  = bd.find_elements_by_xpath('//*[@id="pull_all"]/div[1]/dl')
 
             #往期公告页面选择//*[@id="pull_all"]/div[2]/ul
-            pageall =  bd.find_element_by_xpath('//*[@id="pull_all"]/div/ul')
-            if not pageall:
-                pageall =  bd.find_element_by_xpath('//*[@id="pull_all"]/div[2]/ul')
+            try:
+                pageall =  bd.find_element_by_xpath('//*[@id="pull_all"]/div/ul')
+                if not pageall:
+                    pageall =  bd.find_element_by_xpath('//*[@id="pull_all"]/div[2]/ul')
+            except Exception as e:
+                pageall = None
+            
 
             # print pageall.text
             #最后一页
 
-            pages = bd.find_elements_by_xpath('//*[@id="pull_all"]/div/ul/li')
-
-            pagecountobj = pages[-2]
-
-            pgcount = int(pagecountobj.text)
+            
             # print 'lastpagetext:',pgcount
+            if pageall:
 
-            nowpgcount = int(pageall.find_element_by_class_name('active').text)
-            # print 'current page:',nowpgcount
-            #//*[@id="pull_all"]/div[2]/ul/li[10]/a
-            nextpageobj = pages[-1]
-            # print 'next text:',nextpageobj.text
-            frontpageobj = pages[0]
+                pages = bd.find_elements_by_xpath('//*[@id="pull_all"]/div/ul/li')
+
+                pagecountobj = pages[-2]
+
+                pgcount = int(pagecountobj.text)
+
+                nowpgcount = int(pageall.find_element_by_class_name('active').text)
+                # print 'current page:',nowpgcount
+                #//*[@id="pull_all"]/div[2]/ul/li[10]/a
+                nextpageobj = pages[-1]
+                # print 'next text:',nextpageobj.text
+                frontpageobj = pages[0]
+                
+
             # print 'front text:',frontpageobj.text
-
             # print 'ggcount no page:',len(gonggaotexts)
 
-            print 'curren page %d/%d,%d title per page'%(nowpgcount,pgcount,len(gonggaotexts))
+                print 'curren page %d/%d,%d title per page'%(nowpgcount,pgcount,len(gonggaotexts))
+            else:
+                #只有一页公告
+                print 'heave one page'
+                nowpgcount = 1
+                pgcount = 1
             
             isLastDate = False
 

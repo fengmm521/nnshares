@@ -13,6 +13,13 @@ export PATH=/usr/bin/:/usr/local/bin:/bin:
 DATE=`date "+%Y-%m-%d %H:%M:%S"`
 echo $DATE
 
+#调用脚本的程序目录
+CUR_PATH=`pwd`
+
+#当关脚本所在目录
+basepath=$(cd `dirname $0`; pwd)
+
+cd $basepath
 
 LOG=`nohup python downMsg.py > log.txt 2>&1 & echo $!`
 # LOG=`python test.py & echo $!`

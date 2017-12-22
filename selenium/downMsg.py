@@ -130,7 +130,8 @@ def downShareGongGaoWithTID(tid,savedir,savename):
     f.write(md5str)
     f.close()
 
-    # sharetool.wdriver.quit()
+    sharetool.wdriver.quit()
+    time.sleep(0.3)   
     
 
     return True
